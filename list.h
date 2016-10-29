@@ -22,5 +22,9 @@ struct List
 	Element *first;
 };
 
+void initList(List *list);
+void destroyList(List *list);
+void insertList(List *list, void *data, size_t i);
+
 #endif
 
