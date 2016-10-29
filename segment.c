@@ -50,7 +50,11 @@ void putpixel(SDL_Surface *surface, unsigned x, unsigned y, Uint32 pixel) {
     break;
   }
 }
-
+//besoin de taille caractere ou de un caracter pour tester la fin du bloc sur la
+//largeur
+//besoin d un teste pour corriger la hauteur d une ligne a chaque ligne et la
+//changer avectline
+//besoin de continuer a tester en verifiant qu l on ai pas fini le bloc
 void detectblock(SDL_Surface* img){
   int x,y,e,tline,y1,y2;
   int rgb;
@@ -79,12 +83,14 @@ void detectblock(SDL_Surface* img){
       }
       
     }
-    if()
+    if(y-y2 == tline && endblock == true)//fin du bloc nous pouvons maintenant
+// notre struct de blocs chaine et reininitialiser la plupart sauf y et en
+// sauvegardant y1 ypour sa hauteur,,,,,,,,,
   }
 }
 
 int isblack(SDL_Surface* img,int x, y){
-  rgb = getpixel(img,x,y);
+  Uint32 rgb = getpixel(img,x,y);
   // si r=g=b=255 return 0 else return 1
   
 }
