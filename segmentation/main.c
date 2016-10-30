@@ -21,14 +21,12 @@ void wait_for_keypressed(void) {
 }
 struct coord* SegLine(SDL_Surface *img, int* matrix, int w, int h)
 {
- struct coord *c;
- struct coord c3;
- c=&(c3);
- struct coord* c2=c;
- c->xmin=-1;
- c->xmax=-1;
- c->ymin=-1;
- c->ymax=-1;
+ struct coord c;
+ 
+ c.xmin=-1;
+ c.xmax=-1;
+ c.ymin=-1;
+ c.ymax=-1;
  int online=0;
  for(int i=0;i<h;i++)
  {
