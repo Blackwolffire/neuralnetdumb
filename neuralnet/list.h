@@ -11,18 +11,18 @@
 typedef struct Element Element;
 struct Element
 {
-	void *data;
-	Element *next;
+  void *data;
+  Element *next;
 };
 
 typedef struct List List;
 struct List
 {
-	size_t len;
-	Element *first;
+  size_t len;
+  Element *first;
 };
 
-void initList(List *list);
+List* createList();
 void destroyList(List *list);
 void insertList(List *list, void *data, size_t i);
 
