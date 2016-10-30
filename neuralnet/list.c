@@ -31,7 +31,7 @@ void insertList(List *list, void *data, size_t i)
   Element *elem = NULL, *newElem = NULL;
 
   if(!list)
-    errx(EXIT_FAILURE, "initList: %s  %u\n", __FILE__, __LINE__);
+    errx(EXIT_FAILURE, "insertList: %s  %u\n", __FILE__, __LINE__);
   elem = list->first;
 
   if(i > list->len)
@@ -48,5 +48,18 @@ void insertList(List *list, void *data, size_t i)
     newElem->next = elem->next, elem->next = newElem;
   }
   ++list->len;
+}
+
+void *getDataList(List *list, size_t i)
+{
+  Element *elem = NULL;
+  if(!list || i >= list->len)
+    errx(EXIT_FAILURE, "getDataList:  %s  %d\n", __FILE__, __LINE__);
+
+  elem = list->first;
+  for(size_t j = 1; j < i; ++j)
+    elem = elem->next;
+
+  return elem->data;
 }
 

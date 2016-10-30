@@ -10,7 +10,7 @@
 #include "list.h"
 
 typedef enum NeuronType NeuronType;
-enum NeuronType{NONE, PERCEPTRON, SIGMOID};
+enum NeuronType{NONE = 0, PERCEPTRON = 1, SIGMOID = 2};
 
 typedef union flint flint;
 union flint
@@ -58,10 +58,13 @@ struct NeuralNet
 };
 
 NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
-			NeuronType type, flint *bias);
+			NeuronType *type, flint *bias);
 void destroyNeural(NeuralNet *net);
 void boundNeuron(NeuralNet *net, flint weight, size_t  xin, size_t  yin,
 		 size_t  x, size_t y);
+void setInputNeural(NeuralNet *net, flint *inputs);
+flint getOutputNeural(NeuralNet *net, size_t i);
+void startNeural(NeuralNet *net);
 
 #endif
 
