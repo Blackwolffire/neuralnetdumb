@@ -5,5 +5,6 @@ struct coord {
    int xmax;
    int ymin;
    int ymax;
+   struct coord *next;
 };
 struct coord c;

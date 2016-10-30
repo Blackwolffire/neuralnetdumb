@@ -19,140 +19,59 @@ void wait_for_keypressed(void) {
   // Loop until we got the expected event
   }
 }
-struct coord Get_min_max_val(int* matrix, int w, int h, int i, int j)
+void SegLine(SDL_Surface *img, int* matrix, int w, int h)
 {
- *(matrix+(i*w+j))=2;
- struct coord c={.xmin=j, .xmax=j, .ymin=i, .ymax=i};
- struct coord c1={.xmin=0,.xmax=0,.ymin=0,.ymax=0};
- if(j>0&&*(matrix+i*w+j-1)==1)
-  {
-   c1=Get_min_max_val(matrix,w,h,i,j-1);
-   if(c1.xmin<c.xmin)
-    c.xmin=c1.xmin;
-   if(c1.ymin<c.ymin)
-    c.ymin=c1.ymin;
-   if(c1.ymax>c.ymax)
-    c.ymax=c1.ymax;
-   if(c1.xmax>c.xmax)
-    c.xmax=c1.xmax;
-   if(i>0&&*(matrix+(i-1)*w+j-1)==1)
-   {
-    c1=Get_min_max_val(matrix,w,h,i-1,j-1);
-    if(c1.xmin<c.xmin)
-     c.xmin=c1.xmin;
-    if(c1.ymin<c.ymin)
-     c.ymin=c1.ymin;
-    if(c1.ymax>c.ymax)
-     c.ymax=c1.ymax;
-    if(c1.xmax>c.xmax)
-     c.xmax=c1.xmax;
-   }
-   if(i+1<h&&*(matrix+(i+1)*w+j-1)==1)
-   {
-    c1=Get_min_max_val(matrix,w,h,i+1,j-1);
-    if(c1.xmin<c.xmin)
-     c.xmin=c1.xmin;
-    if(c1.ymin<c.ymin)
-     c.ymin=c1.ymin;
-    if(c1.ymax>c.ymax)
-     c.ymax=c1.ymax;
-    if(c1.xmax>c.xmax)
-     c.xmax=c1.xmax;
-   }
-  }
- if(j+1<w&&*(matrix+i*w+j+1)==1)
-  {
-   c1=Get_min_max_val(matrix,w,h,i,j+1);
-   if(c1.xmin<c.xmin)
-    c.xmin=c1.xmin;
-   if(c1.ymin<c.ymin)
-    c.ymin=c1.ymin;
-   if(c1.ymax>c.ymax)
-    c.ymax=c1.ymax;
-   if(c1.xmax>c.xmax)
-    c.xmax=c1.xmax;
-   if(i>0&&*(matrix+(i-1)*w+j+1)==1)
-   {
-    c1=Get_min_max_val(matrix,w,h,i-1,j+1);
-    if(c1.xmin<c.xmin)
-     c.xmin=c1.xmin;
-    if(c1.ymin<c.ymin)
-     c.ymin=c1.ymin;
-    if(c1.ymax>c.ymax)
-     c.ymax=c1.ymax;
-    if(c1.xmax>c.xmax)
-     c.xmax=c1.xmax;
-   }
-   if(i+1<h&&*(matrix+(i+1)*w+j+1)==1)
-   {
-    c1=Get_min_max_val(matrix,w,h,i+1,j+1);
-    if(c1.xmin<c.xmin)
-     c.xmin=c1.xmin;
-    if(c1.ymin<c.ymin)
-     c.ymin=c1.ymin;
-    if(c1.ymax>c.ymax)
-     c.ymax=c1.ymax;
-    if(c1.xmax>c.xmax)
-     c.xmax=c1.xmax;
-   }
-  }
- if(i+1<h&&*(matrix+(i+1)*w+j)==1)
-   {
-    c1=Get_min_max_val(matrix,w,h,i+1,j);
-    if(c1.xmin<c.xmin)
-     c.xmin=c1.xmin;
-    if(c1.ymin<c.ymin)
-     c.ymin=c1.ymin;
-    if(c1.ymax>c.ymax)
-     c.ymax=c1.ymax;
-    if(c1.xmax>c.xmax)
-     c.xmax=c1.xmax;
-   }
- if(i>0&&*(matrix+(i-1)*w+j)==1)
-   {
-    c1=Get_min_max_val(matrix,w,h,i-1,j);
-    if(c1.xmin<c.xmin)
-     c.xmin=c1.xmin;
-    if(c1.ymin<c.ymin)
-     c.ymin=c1.ymin;
-    if(c1.ymax>c.ymax)
-     c.ymax=c1.ymax;
-    if(c1.xmax>c.xmax)
-     c.xmax=c1.xmax;
-   }
-
- return c;
-}
-void SegChar(SDL_Surface *img, int* matrix, int w, int h)
-{
+ int xmin=-1;
+ int xmax=-1;
+ int ymin=-1;
+ int ymax=-1;
+ int online=0;
  for(int i=0;i<h;i++)
  {
   for(int j=0;j<w;j++)
   {
    if(*(matrix+(i*w+j))==1)
    {
-    struct coord c=Get_min_max_val(matrix,w,h,i,j);
-    if(c.xmin>0)
-     c.xmin-=1;
-    if(c.ymin>0)
-     c.ymin-=1;
-    if(c.xmax+1<w)
-     c.xmax+=1;
-    if(c.ymax+1<h)
-     c.ymax+=1;
-    for(int k=c.xmin;k<=c.xmax;++k)
+    online=1;
+    if(xmin<0)
     {
-     putpixel(img,k,c.ymin,500);
-     putpixel(img,k,c.ymax,500);
+     xmin=j;
+     xmax=j;
+     ymin=i;
+     ymax=i;
     }
-    for(int k=c.ymin;k<=c.ymax;++k)
+    else
     {
-     putpixel(img,c.xmin,k,500);
-     putpixel(img,c.xmax,k,500);
-    }
-
+    if(xmin>j)
+     xmin=j;
+    if(xmax<j)
+     xmax=j;
+    if(ymin>i)
+     ymin=i;
+    if(ymax<i)
+     ymax=i;
    }
+   }
+    
 }
+ if(xmin>=0&&online==0)
+ {
+   for(int k=xmin;k<=xmax;++k)
+    {
+     putpixel(img,k,ymin,500);
+     putpixel(img,k,ymax,500);
+    }
+   for(int k=ymin;k<=ymax;++k)
+    {
+     putpixel(img,xmin,k,500);
+     putpixel(img,xmax,k,500);
+    }
+  xmin=-1;
+  ymin=-1;
+  xmax=-1;
+  ymax=-1;
+ }
+ online=0;
 }
 }
 void print_Mat(int *matrix,int h, int w)
@@ -186,12 +105,13 @@ void Seg_char(SDL_Surface *img)
   }
  }
  //print_Mat(matrix, h, w);
- SegChar(img,matrix,w,h);
+ SegLine(img,matrix,w,h);
+ free(matrix);
 }
 void init_sdl(void) {
   // Init only the video part
   if( SDL_Init(SDL_INIT_VIDEO)==-1 ) {
-    // If it fails, die with an error message
+    // it fails, die with an error message
     errx(1,"Could not initialize SDL: %s.\n", SDL_GetError());
   }
   // We don't really need a function for that ...
