@@ -2,6 +2,8 @@
  * sdouga_a
  */
 
+#include <stdio.h>
+
 #include "list.h"
 
 List* createList()
@@ -57,9 +59,27 @@ void *getDataList(List *list, size_t i)
     errx(EXIT_FAILURE, "getDataList:  %s  %d\n", __FILE__, __LINE__);
 
   elem = list->first;
-  for(size_t j = 1; j < i; ++j)
+  for(size_t j = 0; j < i; ++j)
     elem = elem->next;
 
   return elem->data;
+}
+
+void printList(List *list)
+{
+	Element *elem = NULL;
+
+  if(!list)
+    errx(EXIT_FAILURE, "getDataList:  %s  %d\n", __FILE__, __LINE__);
+
+	elem = list->first;
+
+	printf("len : %zu\n", list->len);
+
+	for(size_t i = 0; i < list->len; ++i){
+		printf("%zu %p -> ", i, elem->data);
+		elem = elem->next;
+	}
+	printf("\n");
 }
 

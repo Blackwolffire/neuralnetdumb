@@ -16,7 +16,7 @@ typedef union flint flint;
 union flint
 {
   int i;
-  float fl;
+  double fl;
 };
 
 
@@ -64,6 +64,7 @@ void boundNeuron(NeuralNet *net, flint weight, size_t  xin, size_t  yin,
 		 size_t  x, size_t y);
 void setInputNeural(NeuralNet *net, flint *inputs);
 flint getOutputNeural(NeuralNet *net, size_t i);
+void proceedNeuron(Neuron *neuron);
 void startNeural(NeuralNet *net);
 
 #endif

@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <stdlib.h>
+#include <math.h>
 
 #include "neural_net.h"
 
@@ -24,12 +26,12 @@ NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
   for(size_t i = 0; i < net->w * net->h; ++i){
     net->network[i].type = type[i];
     net->network[i].inputSynapse = NULL;
-    if(type[i] != NONE){
     #ifdef DEBUG
       printf(" %zu->%d , %d\t", i, bias[i].i, type[i]);
-      if(i % net->w == 0)
-	printf("\n");
+      if((i + 1) % net->w == 0)
+				printf("\n");
     #endif
+    if(type[i] != NONE){
       net->network[i].bias = bias[i];
       net->network[i].inputSynapse = createList();
     }
@@ -66,8 +68,11 @@ void boundNeuron(NeuralNet *net, flint weight, size_t  xin, size_t  yin,
 
 void setInputNeural(NeuralNet *net, flint *inputs)
 {
-  for(size_t i = 0; i < net->inputs; ++i)
-    net->network[i].output = flint[i];
+	printf("set inputs: \n");
+  for(size_t i = 0; i < net->inputs; ++i){
+		printf(" %d - %f\n", inputs[i].i, inputs[i].fl);
+    net->network[i].output = inputs[i];
+	}
 }
 
 flint getOutputNeural(NeuralNet *net, size_t i)
@@ -79,14 +84,39 @@ flint getOutputNeural(NeuralNet *net, size_t i)
 
 void proceedNeuron(Neuron *neuron)
 {
-  
+	Synapse *syn = NULL;
+
+	if(neuron->type == NONE)
+		return;
+	//printList(neuron->inputSynapse);
+	if(neuron->type == PERCEPTRON){
+		neuron->z.i = 0;
+		for(size_t i = 0; i < neuron->inputSynapse->len; ++i){
+			syn = getDataList(neuron->inputSynapse, i);
+		/*#ifdef DEBUG
+			printf(" %p syn %d  %d\n", syn, syn->weight.i, syn->input->output.i);
+		#endif*/
+			neuron->z.i += syn->input->output.i * syn->weight.i;
+		}
+		neuron->output.i = neuron->z.i + neuron->bias.i > 0;
+	}else{
+		neuron->z.fl = 0.;
+		for(size_t i = 0; i < neuron->inputSynapse->len; ++i){
+			syn = getDataList(neuron->inputSynapse, i);
+		/*#ifdef DEBUG
+			printf("syn %f  %f\n", syn->weight.fl, syn->input->output.fl);
+		#endif*/
+			neuron->z.fl += syn->input->output.fl * syn->weight.fl;
+		}
+		neuron->output.fl = 1. / (1. + exp(-1. * neuron->z.fl));
+	}
 }
 
 void startNeural(NeuralNet *net)
 {
   for(size_t i = 1; i < net->h; ++i)
     for(size_t j = 0; j < net->w; ++j){
-      
+      proceedNeuron(net->network + i * net->w + j);
     }
 }
 
