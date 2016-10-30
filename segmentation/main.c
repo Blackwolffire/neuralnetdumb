@@ -19,12 +19,16 @@ void wait_for_keypressed(void) {
   // Loop until we got the expected event
   }
 }
-void SegLine(SDL_Surface *img, int* matrix, int w, int h)
+struct coord* SegLine(SDL_Surface *img, int* matrix, int w, int h)
 {
- int xmin=-1;
- int xmax=-1;
- int ymin=-1;
- int ymax=-1;
+ struct coord *c;
+ struct coord c3;
+ c=&(c3);
+ struct coord* c2=c;
+ c->xmin=-1;
+ c->xmax=-1;
+ c->ymin=-1;
+ c->ymax=-1;
  int online=0;
  for(int i=0;i<h;i++)
  {
@@ -33,46 +37,52 @@ void SegLine(SDL_Surface *img, int* matrix, int w, int h)
    if(*(matrix+(i*w+j))==1)
    {
     online=1;
-    if(xmin<0)
+    if(c->xmin<0)
     {
-     xmin=j;
-     xmax=j;
-     ymin=i;
-     ymax=i;
+     c->xmin=j;
+     c->xmax=j;
+     c->ymin=i;
+     c->ymax=i;
     }
     else
     {
-    if(xmin>j)
-     xmin=j;
-    if(xmax<j)
-     xmax=j;
-    if(ymin>i)
-     ymin=i;
-    if(ymax<i)
-     ymax=i;
+    if(c->xmin>j)
+     c->xmin=j;
+    if(c->xmax<j)
+     c->xmax=j;
+    if(c->ymin>i)
+     c->ymin=i;
+    if(c->ymax<i)
+     c->ymax=i;
    }
    }
     
 }
- if(xmin>=0&&online==0)
+ if(c->xmin>=0&&online==0)
  {
-   for(int k=xmin;k<=xmax;++k)
+   for(int k=c->xmin;k<=c->xmax;++k)
     {
-     putpixel(img,k,ymin,500);
-     putpixel(img,k,ymax,500);
+     putpixel(img,k,c->ymin,500);
+     putpixel(img,k,c->ymax,500);
     }
-   for(int k=ymin;k<=ymax;++k)
+   for(int k=c->ymin;k<=c->ymax;++k)
     {
-     putpixel(img,xmin,k,500);
-     putpixel(img,xmax,k,500);
+     putpixel(img,c->xmin,k,500);
+     putpixel(img,c->xmax,k,500);
     }
-  xmin=-1;
-  ymin=-1;
-  xmax=-1;
-  ymax=-1;
+  //struct coord c2;
+  c++;
+  c->xmin=-1;
+  c->ymin=-1;
+  c->xmax=-1;
+  c->ymax=-1;
+  //*c->next=&(c);
+  //c=c2;
  }
  online=0;
 }
+
+return c2;
 }
 void print_Mat(int *matrix,int h, int w)
 {  
@@ -105,7 +115,9 @@ void Seg_char(SDL_Surface *img)
   }
  }
  //print_Mat(matrix, h, w);
- SegLine(img,matrix,w,h);
+ struct coord *c=SegLine(img,matrix,w,h);
+ if(c==NULL)
+    printf("I SAID FIXME!!!!!!!!!!!1");
  free(matrix);
 }
 void init_sdl(void) {
