@@ -7,7 +7,12 @@ int main()
 {
   NeuralNet *lol = NULL;
   flint bias[10] = {{0}, {0}, {3}, {3}, {3}, {3}, {3}, {0}};
-  NeuronType type[10] = {NONE, NONE, PERCEPTRON, PERCEPTRON, PERCEPTRON, PERCEPTRON, PERCEPTRON, NONE};
+  NeuronType type[10] = {NONE, NONE, PERCEPTRON, PERCEPTRON,
+											PERCEPTRON, PERCEPTRON, PERCEPTRON, NONE};
+
+
+
+	/* ********** On peut TOUT faire avec des portes NAND ************/
 
 	lol = createNeural(2, 1, 2, type, bias);
   bias[0].i = -2, bias[1].i = -4;
