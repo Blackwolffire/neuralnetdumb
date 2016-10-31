@@ -1,1 +1,6 @@
-blabla
+FIXME is the directory which contains a bugged bloc's detection
+
+the line's and character's segmentation are done in the directory segmentation
+
+The things which need to be change in the GUI are just the gathering of the different part
+for use them with the GUIand print the picture
