@@ -9,8 +9,12 @@
 
 #include "list.h"
 
+
+
+#define MAX_RAND 1000
+
 typedef enum NeuronType NeuronType;
-enum NeuronType{NONE = 0, PERCEPTRON = 1, SIGMOID = 2};
+enum NeuronType{NONE = 0, INPUT = 1, PERCEPTRON = 2, SIGMOID = 3};
 
 typedef union flint flint;
 union flint
@@ -30,7 +34,8 @@ struct Neuron
   flint bias;
   flint z;
   flint output;
-  //List outputSynapse;
+  List *outputSynapse;
+  flint dJ;
 };
 
 
@@ -41,6 +46,7 @@ struct Synapse
 {
   flint weight;
   Neuron *input;
+  Neuron *output;
 };
 
 
@@ -57,8 +63,19 @@ struct NeuralNet
   size_t h;
 };
 
+
+/// Training Data
+
+typedef struct TrainingData TrainingData;
+struct TrainingData
+{
+  flint input;
+  flint output;
+};
+
+
 NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
-			NeuronType *type, flint *bias);
+			NeuronType *type);
 void destroyNeural(NeuralNet *net);
 void boundNeuron(NeuralNet *net, flint weight, size_t  xin, size_t  yin,
 		 size_t  x, size_t y);
@@ -66,6 +83,9 @@ void setInputNeural(NeuralNet *net, flint *inputs);
 flint getOutputNeural(NeuralNet *net, size_t i);
 void proceedNeuron(Neuron *neuron);
 void startNeural(NeuralNet *net);
+void trainingNeural(NeuralNet *net, flint *inputs, flint *outputs, size_t nbTry, flint eta);
+void improveNeural(NeuralNet *net, flint *inputs, flint *outputs, flint eta);
+void printNeuralOutput(NeuralNet *net);
 
 #endif
 

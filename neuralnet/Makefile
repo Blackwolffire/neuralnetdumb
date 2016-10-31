@@ -1,5 +1,3 @@
-## ON ESSAIE DE FAIRE UN MAKEFILE
-
 CC=gcc
  
 CPPFLAGS= `pkg-config --cflags sdl`

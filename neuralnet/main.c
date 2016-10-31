@@ -1,56 +1,36 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+//#include <time.h>
 
 #include "neural_net.h"
 
-int main()
+int main(int argc, char **argv)
 {
-  NeuralNet *lol = NULL;
-  flint bias[10] = {{0}, {0}, {3}, {3}, {3}, {3}, {3}, {0}};
-  NeuronType type[10] = {NONE, NONE, PERCEPTRON, PERCEPTRON,
-											PERCEPTRON, PERCEPTRON, PERCEPTRON, NONE};
+  NeuralNet *net = NULL;
+  flint inputs[8];
+  flint outputs[4];
+  flint eta;
+  NeuronType type[10] = {INPUT, INPUT, SIGMOID, SIGMOID, SIGMOID, SIGMOID,
+			  SIGMOID, SIGMOID, SIGMOID, NONE};
 
+  inputs[0].fl = inputs[1].fl = inputs[2].fl = inputs[5].fl = 0.;
+  inputs[3].fl = inputs[4].fl = inputs[6].fl = inputs[7].fl = 1.;
+  outputs[0].fl = outputs[3].fl = 0.;
+  outputs[1].fl = outputs[2].fl = 1.;
+  eta.fl = 0.1;
+  net = createNeural(2, 1, 3, type);
 
+  size_t len;
+  if(argc > 1)
+    len = strtoul(argv[1], NULL, 10);
+  else
+    len = 500;
 
-	/* ********** On peut TOUT faire avec des portes NAND ************/
-
-	lol = createNeural(2, 1, 2, type, bias);
-  bias[0].i = -2, bias[1].i = -4;
-  boundNeuron(lol, bias[1], 0, 0, 0, 1);
-  boundNeuron(lol, bias[0], 0, 0, 1, 2);
-  boundNeuron(lol, bias[0], 1, 0, 0, 2);
-  boundNeuron(lol, bias[1], 1, 0, 1, 1);
-  boundNeuron(lol, bias[0], 0, 1, 0, 2);
-  boundNeuron(lol, bias[0], 1, 1, 1, 2);
-  boundNeuron(lol, bias[0], 0, 2, 0, 3);
-  boundNeuron(lol, bias[0], 1, 2, 0, 3);
-
-	bias[0].i = 0, bias[1].i = 0;
-	setInputNeural(lol, bias);
-	startNeural(lol);
-	bias[0] = getOutputNeural(lol, 0);
-	printf("rip %d \n\n", bias[0].i);
-
-	bias[0].i = 0, bias[1].i = 1;
-	setInputNeural(lol, bias);
-	startNeural(lol);
-	bias[0] = getOutputNeural(lol, 0);
-	printf("rip %d \n\n", bias[0].i);
-
-	bias[0].i = 1, bias[1].i = 0;
-	setInputNeural(lol, bias);
-	startNeural(lol);
-	bias[0] = getOutputNeural(lol, 0);
-	printf("rip %d \n\n", bias[0].i);
-
-	bias[0].i = 1, bias[1].i = 1;
-	setInputNeural(lol, bias);
-	startNeural(lol);
-	bias[0] = getOutputNeural(lol, 0);
-	printf("rip %d \n\n", bias[0].i);
-
-
-  destroyNeural(lol);
+  for(size_t i = 0; i < len; ++i)
+    trainingNeural(net, inputs, outputs, 4, eta);
+  
+  destroyNeural(net);
 
   return 0;
 }

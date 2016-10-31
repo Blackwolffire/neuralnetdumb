@@ -13,7 +13,7 @@ List* createList()
   return list;
 }
 
-void destroyList(List *list)
+void destroyList(List *list, void function(void*))
 {
   Element *elem = list->first, *toRm;
 
@@ -22,7 +22,8 @@ void destroyList(List *list)
 
   while(elem != NULL){
     toRm = elem, elem = elem->next;
-    free(toRm->data);
+    if(function != NULL)
+      function(toRm->data);
     free(toRm);
   }
   free(list);
@@ -67,19 +68,19 @@ void *getDataList(List *list, size_t i)
 
 void printList(List *list)
 {
-	Element *elem = NULL;
+  Element *elem = NULL;
 
   if(!list)
     errx(EXIT_FAILURE, "getDataList:  %s  %d\n", __FILE__, __LINE__);
 
-	elem = list->first;
+  elem = list->first;
 
-	printf("len : %zu\n", list->len);
+  printf("len : %zu\n", list->len);
 
-	for(size_t i = 0; i < list->len; ++i){
-		printf("%zu %p -> ", i, elem->data);
-		elem = elem->next;
-	}
-	printf("\n");
+  for(size_t i = 0; i < list->len; ++i){
+    printf("%zu %p -> ", i, elem->data);
+    elem = elem->next;
+  }
+  printf("\n");
 }
 
