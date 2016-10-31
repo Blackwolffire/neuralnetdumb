@@ -85,8 +85,8 @@ void togrey(GtkWidget *widget)
 	sprintf(nb2, "%d", tout.imp);
 	strcat(nom, nb);
 	strcat(nom2, nb2);
-	printf("FILTRE : %s\n",nom);
-	printf("FILTRE : %s\n",nom2);
+	//printf("FILTRE : %s\n",nom);
+	//printf("FILTRE : %s\n",nom2);
 
 	GError **error = NULL;
   GdkPixbuf *Im = gdk_pixbuf_new_from_file(nom, error);
@@ -110,8 +110,8 @@ void lowgrad(GtkWidget *widget)
 	sprintf(nb2, "%d", tout.imp);
 	strcat(nom, nb);
 	strcat(nom2, nb2);
-	printf("FILTRE : %s\n",nom);
-	printf("FILTRE : %s\n",nom2);
+	//printf("FILTRE : %s\n",nom);
+	//printf("FILTRE : %s\n",nom2);
 
 	GError **error = NULL;
   GdkPixbuf *Im = gdk_pixbuf_new_from_file(nom, error);
@@ -137,8 +137,8 @@ void upgrad(GtkWidget *widget)
 	sprintf(nb2, "%d", tout.imp);
 	strcat(nom, nb);
 	strcat(nom2, nb2);
-	printf("FILTRE : %s\n",nom);
-	printf("FILTRE : %s\n",nom2);
+	//printf("FILTRE : %s\n",nom);
+	//printf("FILTRE : %s\n",nom2);
 
 	GError **error = NULL;
   GdkPixbuf *Im = gdk_pixbuf_new_from_file(nom, error);
@@ -164,8 +164,8 @@ void resiz(GtkWidget *widget)
 	sprintf(nb2, "%d", tout.imp);
 	strcat(nom, nb);
 	strcat(nom2, nb2);
-	printf("FILTRE : %s\n",nom);
-	printf("FILTRE : %s\n",nom2);
+	//printf("FILTRE : %s\n",nom);
+	//printf("FILTRE : %s\n",nom2);
 
 	GError **error = NULL;
   GdkPixbuf *Im = gdk_pixbuf_new_from_file(nom, error);
