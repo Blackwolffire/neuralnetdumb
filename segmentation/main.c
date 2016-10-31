@@ -2,6 +2,7 @@
 # include <SDL/SDL_image.h>
 # include <err.h>
 # include "quartet.h"
+# include "../neuralnet/list.h"
 # include "pixel_operations.h"
 
 void wait_for_keypressed(void) {
@@ -19,14 +20,12 @@ void wait_for_keypressed(void) {
   // Loop until we got the expected event
   }
 }
-struct coord* SegLine(SDL_Surface *img, int* matrix, int w, int h)
-{
- struct coord c;
- 
- c.xmin=-1;
- c.xmax=-1;
- c.ymin=-1;
- c.ymax=-1;
+void SegLine(SDL_Surface *img, int* matrix, int w, int h, List* list){
+ struct coord *c=malloc(sizeof(struct coord));
+ c->xmin=-1;
+ c->xmax=-1;
+ c->ymin=-1;
+ c->ymax=-1;
  int online=0;
  for(int i=0;i<h;i++)
  {
@@ -68,20 +67,75 @@ struct coord* SegLine(SDL_Surface *img, int* matrix, int w, int h)
      putpixel(img,c->xmin,k,500);
      putpixel(img,c->xmax,k,500);
     }
+   if(c->xmin<w-1)
+   c->xmin-=1;
+   if(c->xmin>0)
+   c->xmax+=1;
+   insertList(list, c, 0); 
+  c=malloc(sizeof(struct coord));
   //struct coord c2;
-  c++;
+  //c++;
   c->xmin=-1;
-  c->ymin=-1;
   c->xmax=-1;
+  c->ymin=-1;
   c->ymax=-1;
   //*c->next=&(c);
   //c=c2;
  }
  online=0;
 }
-
-return c2;
 }
+void SegLine_to_char(SDL_Surface *img,  int w,int* matrix, List* list){
+ struct coord *c=malloc(sizeof(struct coord));
+ struct coord *c2;
+ c->xmin=-1;
+ c->xmax=-1;
+ c->ymin=-1;
+ c->ymax=-1;
+ int onchar=0;
+ for(size_t n=list->len;n>0;n--)
+ {
+  c2=getDataList(list,n-1);
+ for(int i=c2->xmin;i<=c2->xmax;i++)
+ {
+  for(int j=c2->ymin;j<=c2->ymax;j++)
+  {
+   if(*(matrix+(j*w+i))==1)
+   {
+    onchar=1;
+    if(c->xmin<0)
+    {
+     c->xmin=i;
+     c->xmax=i;
+    }
+    else
+    {
+    if(c->xmin>i)
+     c->xmin=i;
+    if(c->xmax<i)
+     c->xmax=i;
+   }
+   }
+}
+ if(c->xmin>=0&&onchar==0)
+ {
+   for(int k=c2->ymin;k<=c2->ymax;++k)
+    {
+     putpixel(img,c->xmin,k,500);
+     putpixel(img,c->xmax,k,500);
+    }
+  //struct coord c2;
+  //c++;
+  c->xmin=-1;
+  c->xmax=-1;
+  //*c->next=&(c);
+  //c=c2;
+ }
+ onchar=0;
+}
+}
+free(c);
+} 
 void print_Mat(int *matrix,int h, int w)
 {  
  for(int i=0; i<h; ++i)
@@ -92,31 +146,6 @@ void print_Mat(int *matrix,int h, int w)
    }
    //printf("");
   }
-}    
-void Seg_char(SDL_Surface *img)
-{
- int w=img->w;
- int h=img->h;
- SDL_PixelFormat* format=img->format;
- int *matrix = malloc(sizeof(int)*(h)*(w));
- for (int i = 0;i < h;i++)
- {
-  for (int j = 0;j < w;j++)
-  {
-   Uint32 pxl = getpixel(img, j , i);
-   Uint8 r,g,b;
-   SDL_GetRGB(pxl,format, &r, &g, &b);
-   if (r == 0)
-    *(matrix+(i*w+j)) = 1;
-   else
-    *(matrix+(i*w+j)) = 0;
-  }
- }
- //print_Mat(matrix, h, w);
- struct coord *c=SegLine(img,matrix,w,h);
- if(c==NULL)
-    printf("I SAID FIXME!!!!!!!!!!!1");
- free(matrix);
 }
 void init_sdl(void) {
   // Init only the video part
@@ -126,8 +155,6 @@ void init_sdl(void) {
   }
   // We don't really need a function for that ...
 }
-
-
 SDL_Surface* load_image(char *path) {
   SDL_Surface          *img;
   // Load an image using SDL_image with format detection
@@ -148,8 +175,7 @@ SDL_Surface* display_image(SDL_Surface *img) {
     errx(1, "Couldn't set %dx%d video mode: %s\n",
          img->w, img->h, SDL_GetError());
   }
- 
-  /* Blit onto the screen surface */
+/* Blit onto the screen surface */
   if(SDL_BlitSurface(img, NULL, screen, NULL) < 0)
     warnx("BlitSurface error: %s\n", SDL_GetError());
  
@@ -162,6 +188,36 @@ SDL_Surface* display_image(SDL_Surface *img) {
   // return the screen for further uses
   return screen;
 }
+
+void Seg_char(SDL_Surface *img)
+{
+ int w=img->w;
+ int h=img->h;
+ SDL_PixelFormat* format=img->format;
+ int *matrix = malloc(sizeof(int)*(h)*(w));
+ for (int i = 0;i < h;i++)
+ {
+  for (int j = 0;j < w;j++)
+  {
+   Uint32 pxl = getpixel(img, j , i);
+   Uint8 r,g,b;
+   SDL_GetRGB(pxl,format, &r, &g, &b);
+   if (r == 0)
+    *(matrix+(i*w+j)) = 1;
+   else
+    *(matrix+(i*w+j)) = 0;
+  }
+ }
+ //print_Mat(matrix, h, w);
+ 
+ List* list=createList();
+ SegLine(img,matrix,w,h, list);
+ display_image(img);
+ SegLine_to_char(img, w,matrix, list);
+ destroyList(list);
+ free(matrix);
+}
+
 
 int main(int argc, char *argv[])
 {
