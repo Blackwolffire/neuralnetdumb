@@ -220,7 +220,7 @@ SDL_Surface *Seg_char(SDL_Surface *img)
 }
 
 
-SDL_Surface *Segmentation(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
    if (argc<2)
 	errx(1 , "No image.");
@@ -246,5 +246,5 @@ SDL_Surface *Segmentation(int argc, char *argv[])
    display_image(img);
    Seg_char(img);
    display_image(img);
-   return img;
+   return 0;
 }
