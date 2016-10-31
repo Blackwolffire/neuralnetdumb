@@ -189,7 +189,7 @@ SDL_Surface* display_image(SDL_Surface *img) {
   return screen;
 }
 
-void Seg_char(SDL_Surface *img)
+SDL_Surface *Seg_char(SDL_Surface *img)
 {
  int w=img->w;
  int h=img->h;
@@ -216,10 +216,11 @@ void Seg_char(SDL_Surface *img)
  SegLine_to_char(img, w,matrix, list);
  destroyList(list,NULL);
  free(matrix);
+ return img;
 }
 
 
-int main(int argc, char *argv[])
+SDL_Surface *Segmentation(int argc, char *argv[])
 {
    if (argc<2)
 	errx(1 , "No image.");
@@ -245,6 +246,5 @@ int main(int argc, char *argv[])
    display_image(img);
    Seg_char(img);
    display_image(img);
-   SDL_FreeSurface(img);
-   return 0;
+   return img;
 }
