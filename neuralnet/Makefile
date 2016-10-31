@@ -1,9 +1,9 @@
 CC=gcc
  
-CPPFLAGS= `pkg-config --cflags sdl`
+CPPFLAGS=
 CFLAGS= -Wall -Wextra -Werror -std=c99 -O3
-LDFLAGS= -lm
-LDLIBS= `pkg-config --libs sdl` -lSDL_image
+LDFLAGS=
+LDLIBS= -lm
  
 SRC=  main.c neural_net.c list.c
 OBJ= ${SRC:.c=.o}

@@ -11,72 +11,78 @@
 #include "neural_net.h"
 
 NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
-			 NeuronType *type)
+			 size_t width, NeuronType type)
 {
   NeuralNet *net = malloc(sizeof(NeuralNet));
   flint value;
 
-  if(input >= output)
+  if(input >= output && input >= width)
     net->w = input;
-  else
+  else if(output >= input && output >= width)
     net->w = output;
+	else
+		net->w = width;
 
+	net->type = type;
   net->inputs = input, net->outputs = output, net->hiddenLayers = hiddenLayers;
   net->h = hiddenLayers + 2;
   net->network = malloc(sizeof(Neuron) * net->w * net->h);
 
   for(size_t i = 0; i < net->w * net->h; ++i){
     srand(time(NULL));
-    net->network[i].type = type[i];
+
+    if(i < input)
+			net->network[i].type = INPUT;
+		else if(i < net->w * (net->h - 1) + output && i >= net->w * (net->h - 1))
+			net->network[i].type = type;
+		else if(i >= net->w && i < net->w * (net->h -1))
+			net->network[i].type = type;
+
     net->network[i].inputSynapse = NULL;
     net->network[i].outputSynapse = NULL;
-    #ifdef DEBUG
-      printf(" %zu->%d\n", i, type[i]);
-      if((i + 1) % net->w == 0)
-	printf("\n");
-    #endif
-    switch(type[i]){
+		
+    switch(net->network[i].type){
       case PERCEPTRON:
-	net->network[i].bias.i = rand() % MAX_RAND;
-	net->network[i].inputSynapse = createList();
-	net->network[i].outputSynapse = createList();
-	if(i / net->w == 1)
-	  for(size_t j = 0; j < net->inputs; ++j){
-	    value.i = rand() % MAX_RAND;
-	    boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
-	  }
-	if(i / net->w > 1)
-	  for(size_t j = 0; j < net->w; ++j){
-	    value.i = rand() % MAX_RAND;
-	    boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
-	  }
-	break;
+				net->network[i].bias.i = rand() % MAX_RAND;
+				net->network[i].inputSynapse = createList();
+				net->network[i].outputSynapse = createList();
+				if(i / net->w == 1)
+	  		for(size_t j = 0; j < net->inputs; ++j){
+	    		value.i = rand() % MAX_RAND;
+	    		boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
+	  		}
+				if(i / net->w > 1)
+	  		for(size_t j = 0; j < net->w; ++j){
+	    		value.i = rand() % MAX_RAND;
+	    		boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
+	  		}
+				break;
       case SIGMOID:
-	net->network[i].bias.fl = rand() / (MAX_RAND * 1.);
-	while(net->network[i].bias.fl > 1. || net->network[i].bias.fl < -1.)
-	  net->network[i].bias.fl /= 10.;
-	net->network[i].inputSynapse = createList();
-	net->network[i].outputSynapse = createList();
-	if(i / net->w == 1)
-	  for(size_t j = 0; j < net->inputs; ++j){
-	    value.fl = rand() % MAX_RAND / 10.;
-	    while(value.fl > 1. || value.fl < -1.)
-	      value.fl /= 10.;
-	    boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
-	  }
-	if(i / net->w > 1)
-	  for(size_t j = 0; j < net->w; ++j){
-	    value.fl = rand() % MAX_RAND / 10.;
-	    while(value.fl > 1. || value.fl < -1.)
-	      value.fl /= 10.;
-	    boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
-	  }
-	break;
+				net->network[i].bias.fl = rand() / (MAX_RAND * 1.);
+				while(net->network[i].bias.fl > 1. || net->network[i].bias.fl < -1.)
+	  			net->network[i].bias.fl /= 10.;
+				net->network[i].inputSynapse = createList();
+				net->network[i].outputSynapse = createList();
+				if(i / net->w == 1)
+	  			for(size_t j = 0; j < net->inputs; ++j){
+	    			value.fl = rand() % MAX_RAND / 10.;
+	    			while(value.fl > 1. || value.fl < -1.)
+	      			value.fl /= 10.;
+	    			boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
+	 		 		}
+				if(i / net->w > 1)
+	  			for(size_t j = 0; j < net->w; ++j){
+	    			value.fl = rand() % MAX_RAND / 10.;
+	    			while(value.fl > 1. || value.fl < -1.)
+	      			value.fl /= 10.;
+	    			boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
+	  			}
+				break;
       case INPUT:
-	net->network[i].outputSynapse = createList();
-	break;
+				net->network[i].outputSynapse = createList();
+				break;
       default:
-	break;
+				break;
     }
   }
 
@@ -118,7 +124,10 @@ void boundNeuron(NeuralNet *net, flint weight, size_t  xin, size_t  yin,
   syn->output = net->network + y * net->w + x;
   syn->weight = weight;
 #ifdef DEBUG
-  printf(" %zu -> %d -> %zu\n", yin * net->w + xin, weight.i, y * net->w + x);
+	if(net->type == PERCEPTRON)
+  	printf(" %zu -> %d -> %zu\n", yin * net->w + xin, weight.i, y * net->w + x);
+	else
+  	printf(" %zu -> %f -> %zu\n", yin * net->w + xin, weight.fl, y * net->w + x);
 #endif
   insertList(net->network[y * net->w + x].inputSynapse, syn, 0);
   insertList(net->network[yin * net->w + xin].outputSynapse, syn, 0);
@@ -126,9 +135,7 @@ void boundNeuron(NeuralNet *net, flint weight, size_t  xin, size_t  yin,
 
 void setInputNeural(NeuralNet *net, flint *inputs)
 {
-  printf("set inputs: \n");
   for(size_t i = 0; i < net->inputs; ++i){
-    printf(" %d - %f\n", inputs[i].i, inputs[i].fl);
     net->network[i].output = inputs[i];
   }
 }
@@ -184,18 +191,18 @@ void startNeural(NeuralNet *net)
 void trainingNeural(NeuralNet *net, flint *inputs, flint *outputs,
 		    size_t nbTry, flint eta)
 {
-  for(size_t i = 0; i < nbTry; ++i)
+  for(size_t i = 0; i < nbTry; ++i){
     improveNeural(net, inputs + i * net->inputs, outputs + i * net->outputs,
 eta);
+	}
 }
 
 void improveNeural(NeuralNet *net, flint *inputs, flint *outputs, flint eta)
 {
   flint *a = malloc(sizeof(flint) * net->outputs), sum;
 
-  setInputNeural(net, inputs);
+	setInputNeural(net, inputs);
   startNeural(net);
-  printNeuralOutput(net);
   for(size_t i = 0; i < net->outputs; ++i){
     a[i] = getOutputNeural(net, i);
     if(net->network[net->w * (net->h - 1) + i].type == PERCEPTRON)
@@ -209,29 +216,34 @@ void improveNeural(NeuralNet *net, flint *inputs, flint *outputs, flint eta)
   for(size_t i = net->hiddenLayers; i > 0; --i)
     for(size_t j = 0; j < net->w; ++j){
       if(net->network[i * net->w + j].type == PERCEPTRON){
-	sum.i = 0;
-	for(size_t k = 0; k < 
-	    net->network[i * net->w + j].outputSynapse->len; ++k){
-	  Synapse *syn = getDataList(
-net->network[i * net->w + j].outputSynapse, k);
-	  sum.i += syn->output->dJ.i * syn->weight.i;
-	}
-	net->network[i * net->w + j].dJ.i = net->network[i *
-net->w + j].output.i * (1 - net->network[i * net->w + j].output.i) * sum.i;
-	net->network[i * net->w + j].bias.i += eta.i * net->network[i * net->w + j].dJ.i;
+				sum.i = 0;
+				for(size_t k = 0; k < 
+	    			net->network[i * net->w + j].outputSynapse->len; ++k){
+	  			Synapse *syn = getDataList(
+					net->network[i * net->w + j].outputSynapse, k);
+	  			sum.i += syn->output->dJ.i * syn->weight.i;
+				}
+				net->network[i * net->w + j].dJ.i = net->network[i *
+				net->w + j].output.i * (1 - net->network[i * net->w + j].output.i)
+				 * sum.i;
+				net->network[i * net->w + j].bias.i += eta.i *
+				 net->network[i * net->w + j].dJ.i;
       }else{
-	sum.fl = 0.;
-	for(size_t k = 0; k < 
-	  net->network[i * net->w + j].outputSynapse->len; ++k){
-	  Synapse *syn = getDataList(net->network[i * net->w + j].outputSynapse, k);
-	  sum.fl += syn->output->dJ.fl * syn->weight.fl;
-	  syn->weight.fl += -eta.fl * syn->input->output.fl * syn->output->dJ.fl;
-	}
-	net->network[i * net->w + j].dJ.fl = net->network[i * 
-net->w + j].output.fl * (1 - net->network[i * net->w + j].output.fl) * sum.fl;
-	net->network[i * net->w + j].bias.fl += -eta.fl * net->network[i * net->w + j].dJ.fl;
+				sum.fl = 0.;
+				for(size_t k = 0; k < 
+	  				net->network[i * net->w + j].outputSynapse->len; ++k){
+	  			Synapse *syn = getDataList(net->network[i *
+					 net->w + j].outputSynapse, k);
+	  			sum.fl += syn->output->dJ.fl * syn->weight.fl;
+	  			syn->weight.fl += -eta.fl * syn->input->output.fl *
+					 syn->output->dJ.fl;
+				}
+				net->network[i * net->w + j].dJ.fl = net->network[i * 
+				 net->w + j].output.fl * (1 - net->network[i * net->w + j].output.fl) * sum.fl;
+				net->network[i * net->w + j].bias.fl += -eta.fl * net->network[i
+				 * net->w + j].dJ.fl;
       }
-    }
+		}
 
   free(a);
 }

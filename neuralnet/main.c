@@ -11,15 +11,16 @@ int main(int argc, char **argv)
   flint inputs[8];
   flint outputs[4];
   flint eta;
-  NeuronType type[10] = {INPUT, INPUT, SIGMOID, SIGMOID, SIGMOID, SIGMOID,
-			  SIGMOID, SIGMOID, SIGMOID, NONE};
+  NeuronType type = SIGMOID;
 
   inputs[0].fl = inputs[1].fl = inputs[2].fl = inputs[5].fl = 0.;
   inputs[3].fl = inputs[4].fl = inputs[6].fl = inputs[7].fl = 1.;
-  outputs[0].fl = outputs[3].fl = 0.;
-  outputs[1].fl = outputs[2].fl = 1.;
-  eta.fl = 0.1;
-  net = createNeural(2, 1, 3, type);
+  outputs[0].fl = 0.;
+	outputs[1].fl = 1.;
+  outputs[2].fl = 1.;
+	outputs[3].fl = 0.;
+  eta.fl = 0.01;
+  net = createNeural(2, 1, 2, 2, type);
 
   size_t len;
   if(argc > 1)
@@ -27,8 +28,48 @@ int main(int argc, char **argv)
   else
     len = 500;
 
+	printf("Before training: \ninputs: 0. 0.\n");
+	setInputNeural(net, inputs);
+	startNeural(net);
+	printNeuralOutput(net);
+	
+	printf("inputs: 0. 1.\n");
+	setInputNeural(net, inputs + 2);
+	startNeural(net);
+	printNeuralOutput(net);
+
+	printf("inputs: 1. 0.\n");
+	setInputNeural(net, inputs + 4);
+	startNeural(net);
+	printNeuralOutput(net);
+
+	printf("inputs: 1. 1.\n");
+	setInputNeural(net, inputs + 6);
+	startNeural(net);
+	printNeuralOutput(net);
+
   for(size_t i = 0; i < len; ++i)
     trainingNeural(net, inputs, outputs, 4, eta);
+
+	printf("\nAfter training: \ninputs: 0. 0.\n");
+	setInputNeural(net, inputs);
+	startNeural(net);
+	printNeuralOutput(net);
+	
+	printf("inputs: 0. 1.\n");
+	setInputNeural(net, inputs + 2);
+	startNeural(net);
+	printNeuralOutput(net);
+
+	printf("inputs: 1. 0.\n");
+	setInputNeural(net, inputs + 4);
+	startNeural(net);
+	printNeuralOutput(net);
+
+	printf("inputs: 1. 1.\n");
+	setInputNeural(net, inputs + 6);
+	startNeural(net);
+	printNeuralOutput(net);
   
   destroyNeural(net);
 
