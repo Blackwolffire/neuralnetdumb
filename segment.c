@@ -1,4 +1,3 @@
-r
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL.h>
@@ -60,9 +59,9 @@ void putpixel(SDL_Surface *surface, unsigned x, unsigned y, Uint32 pixel) {
 void detectblock(SDL_Surface* img){
   int x,y,e,tline,y1,y2,x2;
   int rgb;
-  int a = 0;
+  int a;
   int b = 0; 
-  int c = 0;
+  int c;
   int d = 0;
   int e = 0;
   for(y = 0; y < img -> h;y++){ 
@@ -86,34 +85,40 @@ void detectblock(SDL_Surface* img){
         tline = y - y1;
         y2 = y;
         d = 1;
+        a = 0;
       }                
     }
     //traitement jusqu a debut de ligne suivante
-    for(;y<img->y ;y++){
-      for(;x<img->x && a;x++){
-        if( y-y2 < tline && isblack(img,x,y) ){//set y2 a la valeur y qund on commence la prochaine ligne
-           a =1
-           y2 = y
+    for(;y<img->h ;y++){
+      for(;x<img->w && a;x++){
+        if( y-y2 < tline && isblack(img,x,y) ){//reset y2 a la valeur y si tline > y-y2 et un pixel noir sur la ligne est detecte
+           a = 1;
+           y2 = 0;
         }
-        isblack(img,x,y)
-      }
-      if(y-y2 >= tline && isblack(img,x,y) ){
+        if(y-y2 > 2*tline){
+           e = 0;
+           b = 0;
+           d = 0;
            // endbloc = 0 or true if ligne de y2 contient un pixel noi
            //fin du bloc nous pouvons maintenant
            // notre struct de blocs chaine et reininitialiser la plupart sauf y et en
            // creer un nouveau block sauvegarder l ancien,,,,,,,,,
-      a = 1;
+           
+           a = 1;
+        }
       }
    }
    //traitement de la ligne
-     //traitement de x1 si x<x1 et x noir x1=x seulement si meme bloc donc on passe par un x3
-     if(y-y2<tline && endline){//se repete tant que y-y2<tline || rencontre une  ligne sanspixel noir pour si  taille de ligne  != tline alors debut d un nouveau bloc et enregistrement du precedan
-
-
-     //a la fin du traitement de la ligne mettre y2 a 0
+   for(;y<img->h;y++){
+     for(;x<img->w;x++){
+       if(y-y2<tline && endline){//se repete tant aue y-y2<tline || rencontre une  ligne sanspixel noir pour si  taille de ligne  != tline alors debut d un nouveau bloc
+       //a la fin du traitement de la ligne mettre y2 a 0
+       }
+       if(isblack(img,x,y) && x2<x)
+         x2 = x;
      }
-     //oublie pas de mettre x2 a jour
   }
+ }
 }
 
 int isblack(SDL_Surface* img,int x,int y){
