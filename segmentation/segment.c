@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
-#include <err.hvoid wait_for_keypressed(void) {
+#include <err.h>
+#include "quartet.h"
+#include "pixel_operations.h"
+
+void wait_for_keypressed(void) {
   SDL_Event             event;
   // Infinite loop, waiting for event
   for (;;) {
@@ -10,10 +14,22 @@
     SDL_PollEvent( &event );
     // Switch on event type
     switch (event.type) {
-    // Someone pressed a>
-#include "quartet.h"
-#include "pixel_operations.h"
+    // Someone pressed a key -> leave the function
+    case SDL_KEYDOWN: return;
+    default: break;
+    }
+  // Loop until we got the expected event
+  }
+}
 
+void init_sdl(void) {
+  // Init only the video part
+  if( SDL_Init(SDL_INIT_VIDEO)==-1 ) {
+    // it fails, die with an error message
+    errx(1,"Could not initialize SDL: %s.\n", SDL_GetError());
+  }
+  // We don't really need a function for that ...
+}
 
 
 int isblack(SDL_Surface* img,int x,int y){
@@ -150,5 +166,9 @@ int main(int argc,char *argv[]){
     errx(1, "no image";)
   init_sdl();
   SDL_Surface* img =load_image(argv[1]);
-  display
+  display_img(img);
+  detectblock(img);
+  display_img(img);
+  SDL_FreeSurface;
+  return 0;
 }
