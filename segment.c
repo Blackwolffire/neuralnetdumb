@@ -55,7 +55,6 @@ void putpixel(SDL_Surface *surface, unsigned x, unsigned y, Uint32 pixel) {
 //largeur
 //besoin d un teste pour corriger la hauteur d une ligne a chaque ligne et la
 //changer avectline
-//besoin de continuer a tester apres que l on ai pas fini le bloc
 void detectblock(SDL_Surface* img){
   int x,y,e,tline,y1,y2,x2;
   int rgb;
@@ -66,17 +65,17 @@ void detectblock(SDL_Surface* img){
   int e = 0;
   for(y = 0; y < img -> h;y++){ 
     for(x = 0; x < img -> w && e; x++){//traitement premiere ligne du bloc
-      if( isblack(img,x,y) && d){//repeter au debut de chaque bloc pour fixer une premiere valeur de tline DEBUT DU BLOC
+      if( isblack(img,x,y) && d){
         x1=x;
-        //x2 = x car dernier pixel noir du bloc quand on debute le bloc  x2 est le prenier
+        x2 = x;
         y1=y;
-        for(;y<img -> h && b  ;y++){  // b est un booleen true tant que ligne contient au moind un p noir
+        for(;y<img -> h && b  ;y++){
           b = 1;
           c = 0;
           for(x=0;x<img -> w && c ;x++){ 
             if(isblack(img,x,y)){
-              //if(x2<x)
-              //  x2 =x;
+              if(x2<x)
+                x2 =x;
               b = 0;
               c = 1;  
             }
@@ -86,12 +85,12 @@ void detectblock(SDL_Surface* img){
         y2 = y;
         d = 1;
         a = 0;
-      }                
+      }
     }
     //traitement jusqu a debut de ligne suivante
     for(;y<img->h ;y++){
       for(;x<img->w && a;x++){
-        if( y-y2 < tline && isblack(img,x,y) ){//reset y2 a la valeur y si tline > y-y2 et un pixel noir sur la ligne est detecte
+        if( y-y2 < tline && isblack(img,x,y) ){
            a = 1;
            y2 = 0;
         }
@@ -117,8 +116,8 @@ void detectblock(SDL_Surface* img){
        if(isblack(img,x,y) && x2<x)
          x2 = x;
      }
+    }
   }
- }
 }
 
 int isblack(SDL_Surface* img,int x,int y){
