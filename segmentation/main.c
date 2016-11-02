@@ -214,7 +214,7 @@ SDL_Surface *Seg_char(SDL_Surface *img)
  SegLine(img,matrix,w,h, list);
  display_image(img);
  SegLine_to_char(img, w,matrix, list);
- destroyList(list,NULL);
+ destroyList(list, free);
  free(matrix);
  return img;
 }
