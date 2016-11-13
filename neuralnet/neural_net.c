@@ -13,6 +13,7 @@
 NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
 			 size_t width, NeuronType type)
 {
+	size_t outputsIndex = 0;
   NeuralNet *net = malloc(sizeof(NeuralNet));
   flint value;
 
@@ -26,61 +27,72 @@ NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
 	net->type = type;
   net->inputs = input, net->outputs = output, net->hiddenLayers = hiddenLayers;
   net->h = hiddenLayers + 2;
-  net->network = malloc(sizeof(Neuron) * net->w * net->h);
+	net->size = net->w * net->h;
+  net->network = malloc(sizeof(Neuron) * net->size);
 
-  for(size_t i = 0; i < net->w * net->h; ++i){
-    srand(time(NULL));
 
-    if(i < input)
+	outputsIndex = net->w * (net->h - 1);
+  srand(time(NULL)); // maybe to replace
+  for(size_t i = 0; i < net->size; ++i){
+
+		net->network[i].sizeSynIn = net->network[i].sizeSynOut = 0;
+
+    if(i < input){  																					// INPUT
 			net->network[i].type = INPUT;
-		else if(i < net->w * (net->h - 1) + output && i >= net->w * (net->h - 1))
-			net->network[i].type = type;
-		else if(i >= net->w && i < net->w * (net->h -1))
-			net->network[i].type = type;
+			net->network[i].inputs = NULL;
+			net->network[i].outputs = malloc(sizeof(Synapse*) * net->w);
 
-    net->network[i].inputSynapse = NULL;
-    net->network[i].outputSynapse = NULL;
+		}else if(i < outputsIndex + output && i >= outputsIndex){ // OUTPUT
+			net->network[i].type = type;
+			net->network[i].outputs = NULL;
+			net->network[i].inputs = malloc(sizeof(Synapse*) * net->w);
+
+		}else if(i >= net->w && i < outputsIndex)									// HIDDEN NEURON
+			net->network[i].type = type;
+			if(i / net->w == 1)
+				net->network[i].inputs = malloc(sizeof(Synapse*) * input);
+			else
+				net->network[i].inputs = malloc(sizeof(Synapse*) * net->w);
+			if(i >= outputsIndex - net->w)
+				net->network[i].outputs = malloc(sizeof(Synapse*) * output);
+			else
+				net->network[i].outputs = malloc(sizeof(Synapse*) * net->w);
+
+		else{																											// USELESS NEURON
+			net->network[i].type = NONE;
+    	net->network[i].inputs = NULL;
+    	net->network[i].outputs = NULL;
+		}
 		
     switch(net->network[i].type){
       case PERCEPTRON:
 				net->network[i].bias.i = rand() % MAX_RAND;
-				net->network[i].inputSynapse = createList();
-				net->network[i].outputSynapse = createList();
-				if(i / net->w == 1)
-	  		for(size_t j = 0; j < net->inputs; ++j){
-	    		value.i = rand() % MAX_RAND;
-	    		boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
-	  		}
-				if(i / net->w > 1)
-	  		for(size_t j = 0; j < net->w; ++j){
-	    		value.i = rand() % MAX_RAND;
-	    		boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
-	  		}
-				break;
-      case SIGMOID:
-				net->network[i].bias.fl = rand() / (MAX_RAND * 1.);
-				while(net->network[i].bias.fl > 1. || net->network[i].bias.fl < -1.)
-	  			net->network[i].bias.fl /= 10.;
-				net->network[i].inputSynapse = createList();
-				net->network[i].outputSynapse = createList();
 				if(i / net->w == 1)
 	  			for(size_t j = 0; j < net->inputs; ++j){
-	    			value.fl = rand() % MAX_RAND / 10.;
-	    			while(value.fl > 1. || value.fl < -1.)
-	      			value.fl /= 10.;
-	    			boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
-	 		 		}
+	    			value.i = rand() % MAX_RAND;
+	    			boundNeuron(net, value, j, 0, i % net->w, i / net->w);
+	  			}
 				if(i / net->w > 1)
 	  			for(size_t j = 0; j < net->w; ++j){
-	    			value.fl = rand() % MAX_RAND / 10.;
-	    			while(value.fl > 1. || value.fl < -1.)
-	      			value.fl /= 10.;
+	    			value.i = rand() % MAX_RAND;
 	    			boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
 	  			}
 				break;
-      case INPUT:
-				net->network[i].outputSynapse = createList();
+      case SIGMOID:
+				net->network[i].bias.fl = MAX_SIGMOID / (rand() % MAX_RAND + 1);
+				if(i / net->w == 1)
+	  			for(size_t j = 0; j < net->inputs; ++j){
+	    			value.fl = MAX_SIGMOID / (rand() % MAX_RAND + 1);
+	    			boundNeuron(net, value, j, 0, i % net->w, i / net->w);
+	 		 		}
+				else if(i / net->w > 1)
+	  			for(size_t j = 0; j < net->w; ++j){
+	    			value.fl = MAX_SIGMOID / (rand() % MAX_RAND + 1);
+	    			boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
+	  			}
 				break;
+      /*case INPUT:  uselessness
+				break;*/
       default:
 				break;
     }
@@ -91,21 +103,25 @@ NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
 
 void destroyNeural(NeuralNet *net)
 {
-  for(size_t i = 0; i < net->w * net->h; ++i)
+  for(size_t i = 0; i < net->size; ++i)
     switch(net->network[i].type){
       case PERCEPTRON:
-	destroyList(net->network[i].inputSynapse, free);
-	destroyList(net->network[i].outputSynapse, NULL);
-	break;
-      case SIGMOID:
-	destroyList(net->network[i].inputSynapse, free);
-	destroyList(net->network[i].outputSynapse, NULL);
-	break;
+			case SIGMOID:
+				if(i / net->w == 1)
+					for(size_t j = 0; j < net->inputs; ++j)
+						free(net->network[i].intputs[j]);
+				else
+						for(size_t j = 0; j < net->w; ++j)
+							free(net->network[i].inputs[j]);
+				free(net->network[i].inputs);
+				if(net->network[i].outputs)
+					free(net->network[i].outputs);
+				break;
       case INPUT:
-	destroyList(net->network[i].outputSynapse, NULL);
-	break;
+				free(net->network[i].outputs);
+				break;
       default:
-	break;
+				break;
     }
   free(net->network);
   free(net);
@@ -129,8 +145,8 @@ void boundNeuron(NeuralNet *net, flint weight, size_t  xin, size_t  yin,
 	else
   	printf(" %zu -> %f -> %zu\n", yin * net->w + xin, weight.fl, y * net->w + x);
 #endif
-  insertList(net->network[y * net->w + x].inputSynapse, syn, 0);
-  insertList(net->network[yin * net->w + xin].outputSynapse, syn, 0);
+  net->network[y * net->w + x].inputs[net->network[y * net->w + x].sizeSynIn++];
+  net->network[y * net->w + x].outputs[net->network[y * net->w + x].sizeSynOut++];
 }
 
 void setInputNeural(NeuralNet *net, flint *inputs)
@@ -153,28 +169,18 @@ void proceedNeuron(Neuron *neuron)
 
   if(neuron->type == NONE)
     return;
-  //printList(neuron->inputSynapse);
+
   if(neuron->type == PERCEPTRON){
     neuron->z.i = 0;
-    for(size_t i = 0; i < neuron->inputSynapse->len; ++i){
-      syn = getDataList(neuron->inputSynapse, i);
-    /*#ifdef DEBUG
-      printf(" %p syn %d  %d\n", syn, syn->weight.i,
-      syn->input->output.i);
-    #endif*/
-      neuron->z.i += syn->input->output.i * syn->weight.i;
-    }
-    neuron->output.i = neuron->z.i + neuron->bias.i > 0;
+    for(size_t i = 0; i < neuron->sizeSynIn; ++i)
+      neuron->z.i += neuron->inputs[i]->input->output.i * neuron->inputs[i]->weight.i;
+
+    neuron->output.i = (neuron->z.i + neuron->bias.i) > 0;
   }else{
     neuron->z.fl = 0.;
-    for(size_t i = 0; i < neuron->inputSynapse->len; ++i){
-      syn = getDataList(neuron->inputSynapse, i);
-    /*#ifdef DEBUG
-      printf("syn %f  %f\n", syn->weight.fl,
-      syn->input->output.fl);
-    #endif*/
-      neuron->z.fl += syn->input->output.fl * syn->weight.fl;
-    }
+    for(size_t i = 0; i < neuron->inputSynapse->len; ++i)
+      neuron->z.fl += neuron->inputs[i]->input->output.fl * neuron->inputs[i]->weight.fl;
+
     neuron->z.fl += neuron->bias.fl;
     neuron->output.fl = 1. / (1. + exp(-1. * neuron->z.fl));
   }
@@ -182,10 +188,8 @@ void proceedNeuron(Neuron *neuron)
 
 void startNeural(NeuralNet *net)
 {
-  for(size_t i = 1; i < net->h; ++i)
-    for(size_t j = 0; j < net->w; ++j){
-      proceedNeuron(net->network + i * net->w + j);
-    }
+  for(size_t i = net->w; i < net->size; ++i)
+    proceedNeuron(net->network + i);
 }
 
 void trainingNeural(NeuralNet *net, flint *inputs, flint *outputs,
@@ -252,6 +256,7 @@ void printNeuralOutput(NeuralNet *net)
 {
   printf("Outputs:\n");
   for(size_t i = 0; i < net->outputs; ++i)
-    printf("%d - %f\n", net->network[net->w * (net->h - 1) + i].output.i, net->network[net->w * (net->h - 1) + i].output.fl);
+    printf("%d - %f\n", net->network[net->w * (net->h - 1) + i].output.i,
+						net->network[net->w * (net->h - 1) + i].output.fl);
 }
 

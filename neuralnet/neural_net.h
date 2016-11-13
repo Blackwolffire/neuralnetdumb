@@ -12,12 +12,13 @@
 
 
 #define MAX_RAND 1000
+#define MAX_SIGMOID 10.0
 
 typedef enum NeuronType NeuronType;
 enum NeuronType{NONE = 0, INPUT = 1, PERCEPTRON = 2, SIGMOID = 3};
 
 typedef union flint flint;
-union flint
+union flint // flint => fl(oat)int 					Captain Flint is coming!
 {
   int i;
   double fl;
@@ -30,11 +31,13 @@ typedef struct Neuron Neuron;
 struct Neuron
 {
   NeuronType type;
-  List *inputSynapse;
+	Synapse **inputs
+  Synapse **outputs;
+	size_t sizeSynIn;
+	size_t sizeSynOut;
   flint bias;
   flint z;
   flint output;
-  List *outputSynapse;
   flint dJ;
 };
 
@@ -62,9 +65,10 @@ struct NeuralNet
   size_t outputs;
   size_t w;
   size_t h;
+	size_t size;
 };
 
-
+/*
 /// Training Data
 
 typedef struct TrainingData TrainingData;
@@ -73,7 +77,7 @@ struct TrainingData
   flint input;
   flint output;
 };
-
+*/
 
 NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
 			size_t width, NeuronType type);
