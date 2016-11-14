@@ -15,9 +15,14 @@
 #define MAX_SIGMOID 10.0
 
 typedef enum NeuronType NeuronType;
+typedef union flint flint;
+typedef struct Synapse Synapse;
+typedef struct Neuron Neuron;
+typedef struct NeuralNet NeuralNet;
+
+
 enum NeuronType{NONE = 0, INPUT = 1, PERCEPTRON = 2, SIGMOID = 3};
 
-typedef union flint flint;
 union flint // flint => fl(oat)int 					Captain Flint is coming!
 {
   int i;
@@ -27,11 +32,10 @@ union flint // flint => fl(oat)int 					Captain Flint is coming!
 
 /// Neuron
 
-typedef struct Neuron Neuron;
 struct Neuron
 {
   NeuronType type;
-	Synapse **inputs
+	Synapse **inputs;
   Synapse **outputs;
 	size_t sizeSynIn;
 	size_t sizeSynOut;
@@ -44,7 +48,6 @@ struct Neuron
 
 /// Synapse
 
-typedef struct Synapse Synapse;
 struct Synapse
 {
   flint weight;
@@ -55,7 +58,6 @@ struct Synapse
 
 /// Neural Network
 
-typedef struct NeuralNet NeuralNet;
 struct NeuralNet
 {
   Neuron *network;
@@ -88,7 +90,7 @@ void setInputNeural(NeuralNet *net, flint *inputs);
 flint getOutputNeural(NeuralNet *net, size_t i);
 void proceedNeuron(Neuron *neuron);
 void startNeural(NeuralNet *net);
-void trainingNeural(NeuralNet *net, flint *inputs, flint *outputs, size_t nbTry, flint eta);
+void trainingNeural(NeuralNet *net, flint *inputs, flint *outputs, size_t nbTrain, flint eta);
 void improveNeural(NeuralNet *net, flint *inputs, flint *outputs, flint eta);
 void printNeuralOutput(NeuralNet *net);
 

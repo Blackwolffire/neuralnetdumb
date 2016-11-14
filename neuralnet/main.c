@@ -13,20 +13,22 @@ int main(int argc, char **argv)
   flint eta;
   NeuronType type = SIGMOID;
 
-  inputs[0].fl = inputs[1].fl = inputs[2].fl = inputs[5].fl = 0.;
-  inputs[3].fl = inputs[4].fl = inputs[6].fl = inputs[7].fl = 1.;
-  outputs[0].fl = 0.;
-	outputs[1].fl = 1.;
-  outputs[2].fl = 1.;
+  inputs[0].fl = 0., inputs[1].fl = 0.;
+	inputs[2].fl = 0., inputs[3].fl = 1.;
+  inputs[4].fl = 1., inputs[5].fl = 0.;
+	inputs[6].fl = 1., inputs[7].fl = 1.;
+  outputs[0].fl = 1.;
+	outputs[1].fl = 0.;
+  outputs[2].fl = 0.;
 	outputs[3].fl = 0.;
-  eta.fl = 0.01;
-  net = createNeural(2, 1, 10, 5, type);
+  eta.fl = 0.1;
+  net = createNeural(2, 1, 5, 3, type);
 
   size_t len;
   if(argc > 1)
     len = strtoul(argv[1], NULL, 10);
   else
-    len = 500;
+    len = 0;
 
 	printf("Before training: \ninputs: 0. 0.\n");
 	setInputNeural(net, inputs);
@@ -73,6 +75,6 @@ int main(int argc, char **argv)
   
   destroyNeural(net);
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
