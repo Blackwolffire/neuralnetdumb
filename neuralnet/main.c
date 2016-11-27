@@ -17,9 +17,9 @@ int main(int argc, char **argv)
 	inputs[2].fl = 0., inputs[3].fl = 1.;
   inputs[4].fl = 1., inputs[5].fl = 0.;
 	inputs[6].fl = 1., inputs[7].fl = 1.;
-  outputs[0].fl = 1.;
-	outputs[1].fl = 0.;
-  outputs[2].fl = 0.;
+  outputs[0].fl = 0.;
+	outputs[1].fl = 1.;
+  outputs[2].fl = 1.;
 	outputs[3].fl = 0.;
   eta.fl = 0.1;
   net = createNeural(2, 1, 5, 3, type);

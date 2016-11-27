@@ -214,11 +214,11 @@ void improveNeural(NeuralNet *net, flint *inputs, flint *outputs, flint eta)
       net->network[outputIndex + i].dJ.fl = a[i].fl * (1. - a[i].fl) * (a[i].fl - outputs[i].fl);
   }
 
-  for(size_t i = net->hiddenLayers; i > 0; --i)
+  for(size_t i = net->hiddenLayers; i <= net->hiddenLayers; --i)
     for(size_t j = 0; j < net->w; ++j){
 			size_t index = i * net->w + j;
 
-      if(net->network[index].type == PERCEPTRON){
+      if(net->network[index].type != NONE && net->type == PERCEPTRON){
 				sum.i = 0;
 				for(size_t k = 0; k < net->network[index].sizeSynOut; ++k){
 	  			sum.i += net->network[index].outputs[k]->output->dJ.i * net->network[index].outputs[k]->weight.i;
@@ -228,7 +228,7 @@ void improveNeural(NeuralNet *net, flint *inputs, flint *outputs, flint eta)
 net->network[index].output.i * (1 - net->network[index].output.i) * sum.i;
 				net->network[index].bias.i += -eta.i * net->network[index].dJ.i;
 
-      }else if(net->network[index].type == SIGMOID){
+      }else if(net->network[index].type != NONE && net->type == SIGMOID){
 				sum.fl = 0.;
 				for(size_t k = 0; k < net->network[index].sizeSynOut; ++k){
 	  			sum.fl += net->network[index].outputs[k]->output->dJ.fl * net->network[index].outputs[k]->weight.fl;
