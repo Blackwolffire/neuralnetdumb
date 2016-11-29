@@ -31,9 +31,9 @@ NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
   net->network = malloc(sizeof(Neuron) * net->size);
 
 
+ 	srand(time(NULL)); // maybe to replace
 	outputsIndex = net->size - net->w;
   for(size_t i = 0; i < net->size; ++i){
-  	srand(time(NULL)); // maybe to replace
 
 		net->network[i].sizeSynIn = net->network[i].sizeSynOut = 0;
 
@@ -79,15 +79,18 @@ NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
 	  			}
 				break;
       case SIGMOID:
-				net->network[i].bias.fl = MAX_SIGMOID / (rand() % MAX_RAND + 1);
+				net->network[i].bias.fl = rand();
+				net->network[i].bias.fl = (net->network[i].bias.fl / 1000000.0 - (int)(net->network[i].bias.fl / 1000000)) * 2. - 1.;
 				if(i / net->w == 1)
 	  			for(size_t j = 0; j < net->inputs; ++j){
-	    			value.fl = MAX_SIGMOID / (rand() % MAX_RAND + 1);
+	    			value.fl = rand();
+						value.fl = (value.fl / 1000000.0 - (int)(value.fl / 1000000)) * 2. - 1.;
 	    			boundNeuron(net, value, j, 0, i % net->w, i / net->w);
 	 		 		}
 				else if(i / net->w > 1)
 	  			for(size_t j = 0; j < net->w; ++j){
-	    			value.fl = MAX_SIGMOID / (rand() % MAX_RAND + 1);
+	    			value.fl = rand();
+						value.fl = (value.fl / 1000000.0 - (int)(value.fl / 1000000)) * 2. - 1.;
 	    			boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
 	  			}
 				break;
@@ -173,13 +176,13 @@ void proceedNeuron(Neuron *neuron)
     for(size_t i = 0; i < neuron->sizeSynIn; ++i)
       neuron->z.i += neuron->inputs[i]->input->output.i * neuron->inputs[i]->weight.i;
 
-    neuron->output.i = (neuron->z.i + neuron->bias.i) > 0;
+    neuron->output.i = (neuron->z.i - neuron->bias.i) > 0;
   }else{
     neuron->z.fl = 0.;
     for(size_t i = 0; i < neuron->sizeSynIn; ++i)
       neuron->z.fl += neuron->inputs[i]->input->output.fl * neuron->inputs[i]->weight.fl;
 
-    neuron->z.fl += neuron->bias.fl;
+    neuron->z.fl -= neuron->bias.fl;
     neuron->output.fl = 1. / (1. + exp(-1. * neuron->z.fl));
   }
 }
@@ -208,10 +211,13 @@ void improveNeural(NeuralNet *net, flint *inputs, flint *outputs, flint eta)
   startNeural(net);
   for(size_t i = 0; i < net->outputs; ++i){
     a[i] = getOutputNeural(net, i);
-    if(net->network[outputIndex + i].type == PERCEPTRON)
+    if(net->network[outputIndex + i].type == PERCEPTRON){
       net->network[outputIndex + i].dJ.i = a[i].i * (1 - a[i].i) * (a[i].i - outputs[i].i);
-    else
+			net->network[outputIndex + i].bias.i += -eta.i * net->network[outputIndex + i].dJ.i;
+		}else{
       net->network[outputIndex + i].dJ.fl = a[i].fl * (1. - a[i].fl) * (a[i].fl - outputs[i].fl);
+			net->network[outputIndex + i].bias.fl += -eta.fl * net->network[outputIndex + i].dJ.fl;
+		}
   }
 
   for(size_t i = net->hiddenLayers; i <= net->hiddenLayers; --i)

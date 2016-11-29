@@ -12,7 +12,6 @@
 
 
 #define MAX_RAND 1000
-#define MAX_SIGMOID 10.0
 
 typedef enum NeuronType NeuronType;
 typedef union flint flint;

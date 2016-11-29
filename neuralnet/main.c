@@ -21,8 +21,8 @@ int main(int argc, char **argv)
 	outputs[1].fl = 1.;
   outputs[2].fl = 1.;
 	outputs[3].fl = 0.;
-  eta.fl = 0.1;
-  net = createNeural(2, 1, 5, 3, type);
+  eta.fl = 0.01;
+  net = createNeural(2, 1, 2, 2, type);
 
   size_t len;
   if(argc > 1)
