@@ -11,54 +11,55 @@
 #include "neural_net.h"
 
 NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
-			 size_t width, NeuronType type)
+			 size_t *width, NeuronType type)
 {
-	size_t outputsIndex = 0;
+  size_t outputsIndex = 0;
   NeuralNet *net = malloc(sizeof(NeuralNet));
   flint value;
 
-  if(input >= output && input >= width)
+  net->w = 0;
+  for(size_t i = 0; i < hiddenLayers; ++i)
+    if(net->w < width[i])
+      net->w = width[i];
+  if(input >= output && input >= net->w)
     net->w = input;
-  else if(output >= input && output >= width)
+  else if(output >= input && output >= net->w)
     net->w = output;
-	else
-		net->w = width;
 
-	net->type = type;
+  net->type = type;
   net->inputs = input, net->outputs = output, net->hiddenLayers = hiddenLayers;
   net->h = hiddenLayers + 2;
-	net->size = net->w * net->h;
+  net->size = net->w * net->h;
   net->network = malloc(sizeof(Neuron) * net->size);
 
 
- 	srand(time(NULL)); // maybe to replace
-	outputsIndex = net->size - net->w;
+  srand(time(NULL)); // maybe to replace
+  outputsIndex = net->size - net->w;
   for(size_t i = 0; i < net->size; ++i){
+    net->network[i].sizeSynIn = net->network[i].sizeSynOut = 0;
 
-		net->network[i].sizeSynIn = net->network[i].sizeSynOut = 0;
-
-    if(i < input){  																					// INPUT
+    if(i < input){  							    // INPUT
 			net->network[i].type = INPUT;
 			net->network[i].inputs = NULL;
-			net->network[i].outputs = malloc(sizeof(Synapse*) * net->w);
+			net->network[i].outputs = malloc(sizeof(Synapse*) * width[0]);
 
 		}else if(i < outputsIndex + output && i >= outputsIndex){ // OUTPUT
 			net->network[i].type = type;
 			net->network[i].outputs = NULL;
 			net->network[i].inputs = malloc(sizeof(Synapse*) * net->w);
 
-		}else if(i >= net->w && i < outputsIndex){									// HIDDEN NEURON
+		}else if(i >= net->w && i < outputsIndex && i % net->w < width[i / net->w - 1]){ // HIDDEN NEURON
 			net->network[i].type = type;
 			if(i / net->w == 1)
 				net->network[i].inputs = malloc(sizeof(Synapse*) * input);
 			else
-				net->network[i].inputs = malloc(sizeof(Synapse*) * net->w);
+				net->network[i].inputs = malloc(sizeof(Synapse*) * width[i / net->w - 2]);
 			if(i >= outputsIndex - net->w)
 				net->network[i].outputs = malloc(sizeof(Synapse*) * output);
 			else
-				net->network[i].outputs = malloc(sizeof(Synapse*) * net->w);
+				net->network[i].outputs = malloc(sizeof(Synapse*) * width[i / net->w]);
 
-		}else{																											// USELESS NEURON
+		}else{						  // USELESS NEURON
 			net->network[i].type = NONE;
     	net->network[i].inputs = NULL;
     	net->network[i].outputs = NULL;
@@ -79,21 +80,21 @@ NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
 	  			}
 				break;
       case SIGMOID:
-				net->network[i].bias.fl = rand();
-				net->network[i].bias.fl = (net->network[i].bias.fl / 1000000.0 - (int)(net->network[i].bias.fl / 1000000)) * 2. - 1.;
-				if(i / net->w == 1)
-	  			for(size_t j = 0; j < net->inputs; ++j){
-	    			value.fl = rand();
-						value.fl = (value.fl / 1000000.0 - (int)(value.fl / 1000000)) * 2. - 1.;
-	    			boundNeuron(net, value, j, 0, i % net->w, i / net->w);
-	 		 		}
-				else if(i / net->w > 1)
-	  			for(size_t j = 0; j < net->w; ++j){
-	    			value.fl = rand();
-						value.fl = (value.fl / 1000000.0 - (int)(value.fl / 1000000)) * 2. - 1.;
-	    			boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
-	  			}
-				break;
+	net->network[i].bias.fl = rand();
+	net->network[i].bias.fl = (net->network[i].bias.fl / 1000000.0 - (int)(net->network[i].bias.fl / 1000000)) * 2. - 1.;
+	if(i / net->w == 1)
+	  for(size_t j = 0; j < net->inputs; ++j){
+	    value.fl = rand();
+	    value.fl = (value.fl / 1000000.0 - (int)(value.fl / 1000000)) * 2. - 1.;
+	    boundNeuron(net, value, j, 0, i % net->w, i / net->w);
+	  }
+	else if(i / net->w > 1)
+	  for(size_t j = 0; j < width[i /net->w - 2]; ++j){
+	    value.fl = rand();
+	    value.fl = (value.fl / 1000000.0 - (int)(value.fl / 1000000)) * 2. - 1.;
+	    boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
+	  }
+	break;
       /*case INPUT:  uselessness
 				break;*/
       default:
@@ -220,7 +221,7 @@ void improveNeural(NeuralNet *net, flint *inputs, flint *outputs, flint eta)
 		}
   }
 
-  for(size_t i = net->hiddenLayers; i <= net->hiddenLayers; --i)
+  for(size_t i = net->hiddenLayers; i >0/*<= net->hiddenLayers*/; --i)
     for(size_t j = 0; j < net->w; ++j){
 			size_t index = i * net->w + j;
 

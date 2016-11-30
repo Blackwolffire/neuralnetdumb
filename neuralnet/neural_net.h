@@ -81,7 +81,7 @@ struct TrainingData
 */
 
 NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
-			size_t width, NeuronType type);
+			size_t *width, NeuronType type);
 void destroyNeural(NeuralNet *net);
 void boundNeuron(NeuralNet *net, flint weight, size_t  xin, size_t  yin,
 		 size_t  x, size_t y);

@@ -7,6 +7,8 @@
 
 int main(int argc, char **argv)
 {
+  unsigned short int perc = 1;
+  size_t w[3] = {3, 2, 2};
   NeuralNet *net = NULL;
   flint inputs[8];
   flint outputs[4];
@@ -22,7 +24,7 @@ int main(int argc, char **argv)
   outputs[2].fl = 1.;
 	outputs[3].fl = 0.;
   eta.fl = 0.01;
-  net = createNeural(2, 1, 2, 2, type);
+  net = createNeural(2, 1, 2, w, type);
 
   size_t len;
   if(argc > 1)
@@ -50,8 +52,13 @@ int main(int argc, char **argv)
 	startNeural(net);
 	printNeuralOutput(net);
 
-  for(size_t i = 0; i < len; ++i)
+  for(size_t i = 0; i < len; ++i){
+    if(perc != i * 100 / len){
+      perc = i * 100 / len;
+      printf("%d\n", perc);
+    }
     trainingNeural(net, inputs, outputs, 4, eta);
+  }
 
 	printf("\nAfter training: \ninputs: 0. 0.\n");
 	setInputNeural(net, inputs);
