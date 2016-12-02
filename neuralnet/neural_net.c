@@ -2,6 +2,11 @@
  * sdouga_a
  */
 
+
+
+///////////////////////////   METTRE A JOUR LES GESTIONS D'ERREURS
+
+
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -80,21 +85,21 @@ NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
 	  			}
 				break;
       case SIGMOID:
-	net->network[i].bias.fl = rand();
-	net->network[i].bias.fl = (net->network[i].bias.fl / 1000000.0 - (int)(net->network[i].bias.fl / 1000000)) * 2. - 1.;
-	if(i / net->w == 1)
-	  for(size_t j = 0; j < net->inputs; ++j){
-	    value.fl = rand();
-	    value.fl = (value.fl / 1000000.0 - (int)(value.fl / 1000000)) * 2. - 1.;
-	    boundNeuron(net, value, j, 0, i % net->w, i / net->w);
-	  }
-	else if(i / net->w > 1)
-	  for(size_t j = 0; j < width[i /net->w - 2]; ++j){
-	    value.fl = rand();
-	    value.fl = (value.fl / 1000000.0 - (int)(value.fl / 1000000)) * 2. - 1.;
-	    boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
-	  }
-	break;
+				net->network[i].bias.fl = rand();
+				net->network[i].bias.fl = (net->network[i].bias.fl / 1000000000.0 - (int)(net->network[i].bias.fl / 1000000000)) * 2. - 1.;
+				if(i / net->w == 1)
+	  			for(size_t j = 0; j < net->inputs; ++j){
+	    			value.fl = rand();
+	    			value.fl = (value.fl / 1000000000.0 - (int)(value.fl / 1000000000)) * 2. - 1.;
+	    			boundNeuron(net, value, j, 0, i % net->w, i / net->w);
+	  			}
+				else if(i / net->w > 1)
+	  			for(size_t j = 0; j < width[i /net->w - 2]; ++j){
+	    			value.fl = rand();
+	    			value.fl = (value.fl / 1000000000.0 - (int)(value.fl / 1000000000)) * 2. - 1.;
+	    			boundNeuron(net, value, j, i / net->w - 1, i % net->w, i / net->w);
+	  			}
+				break;
       /*case INPUT:  uselessness
 				break;*/
       default:
@@ -107,6 +112,7 @@ NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
 
 void destroyNeural(NeuralNet *net)
 {
+	size_t lastone;
   for(size_t i = 0; i < net->size; ++i)
     switch(net->network[i].type){
       case PERCEPTRON:
@@ -114,9 +120,14 @@ void destroyNeural(NeuralNet *net)
 				if(i / net->w == 1)
 					for(size_t j = 0; j < net->inputs; ++j)
 						free(net->network[i].inputs[j]);
-				else
-						for(size_t j = 0; j < net->w; ++j)
+				else{
+						lastone = i / net->w * net->w - 1;
+						while(lastone < i && net->network[lastone].type == NONE)
+							--lastone;
+						lastone /= net->w;
+						for(size_t j = 0; j < lastone; ++j)
 							free(net->network[i].inputs[j]);
+				}
 				free(net->network[i].inputs);
 				if(net->network[i].outputs)
 					free(net->network[i].outputs);
@@ -183,8 +194,8 @@ void proceedNeuron(Neuron *neuron)
     for(size_t i = 0; i < neuron->sizeSynIn; ++i)
       neuron->z.fl += neuron->inputs[i]->input->output.fl * neuron->inputs[i]->weight.fl;
 
-    neuron->z.fl -= neuron->bias.fl;
-    neuron->output.fl = 1. / (1. + exp(-1. * neuron->z.fl));
+    neuron->z.fl += neuron->bias.fl;
+    neuron->output.fl = 1. / (1. + exp(-neuron->z.fl));
   }
 }
 
@@ -195,58 +206,72 @@ void startNeural(NeuralNet *net)
 }
 
 void trainingNeural(NeuralNet *net, flint *inputs, flint *outputs,
-		    						size_t nbTrain, flint eta)
+		    						size_t nbTrain, flint eta, size_t len)
 {
-  for(size_t i = 0; i < nbTrain; ++i){
-    improveNeural(net, inputs + i * net->inputs, outputs + i * net->outputs,
-									eta);
+	unsigned short int percent = 200;
+	flint *a = NULL;
+
+	assert(net && inputs && outputs);
+
+	a = malloc(sizeof(flint) * nbTrain * (net->size - net->w));
+	for(size_t j =0; j < len; ++j){
+		if(percent / 10 != j * 10 / len){
+				percent = j * 100 / len;
+				printf(" %d%%\n", percent);
+		}
+  	for(size_t i = 0; i < nbTrain; ++i){
+			size_t indexA = i * (net->size - net->w);
+			setInputNeural(net, inputs + i * net->inputs);
+			startNeural(net);
+			for(size_t k = net->w; k < net->size; ++k)
+				a[indexA + k] = net->network[k].output;
+		}
+    improveNeural(net, a, outputs, nbTrain, eta);
 	}
+	free(a);
 }
 
-void improveNeural(NeuralNet *net, flint *inputs, flint *outputs, flint eta)
+void improveNeural(NeuralNet *net, flint *a, flint *outputs, size_t len, flint eta)
 {
-	size_t outputIndex = net->size - net->w;
-  flint *a = malloc(sizeof(flint) * net->outputs), sum;
+	size_t outputIndex = net->size - net->w, indexA = net->size - net->w;
+  flint sum;
 
-	setInputNeural(net, inputs);
-  startNeural(net);
-  for(size_t i = 0; i < net->outputs; ++i){
-    a[i] = getOutputNeural(net, i);
-    if(net->network[outputIndex + i].type == PERCEPTRON){
-      net->network[outputIndex + i].dJ.i = a[i].i * (1 - a[i].i) * (a[i].i - outputs[i].i);
-			net->network[outputIndex + i].bias.i += -eta.i * net->network[outputIndex + i].dJ.i;
-		}else{
-      net->network[outputIndex + i].dJ.fl = a[i].fl * (1. - a[i].fl) * (a[i].fl - outputs[i].fl);
-			net->network[outputIndex + i].bias.fl += -eta.fl * net->network[outputIndex + i].dJ.fl;
-		}
-  }
+	for(size_t l = len - 1; l < len; --len){
+	  for(size_t i = 0; i < net->outputs; ++i){
+ 	   	if(net->network[outputIndex + i].type == PERCEPTRON){
+  	    net->network[outputIndex + i].dJ.i = a[i].i * (1 - a[i].i) * (a[i].i - outputs[i].i);
+				net->network[outputIndex + i].bias.i += -eta.i * net->network[outputIndex + i].dJ.i;
+			}else{
+      	net->network[outputIndex + i].dJ.fl = a[(l + 1) * indexA - net->w + i].fl * (1. - a[(l+1)* indexA - net->w + i].fl) * (a[(l+1)* indexA - net->w + i].fl - outputs[l * net->outputs + i].fl);
+				net->network[outputIndex + i].bias.fl -= eta.fl * net->network[outputIndex + i].dJ.fl;
+			}
+  	}
 
-  for(size_t i = net->hiddenLayers; i >0/*<= net->hiddenLayers*/; --i)
-    for(size_t j = 0; j < net->w; ++j){
-			size_t index = i * net->w + j;
+  	for(size_t i = net->hiddenLayers; i <= net->hiddenLayers; --i)
+    	for(size_t j = 0; j < net->w; ++j){
+				size_t index = i * net->w + j;
 
-      if(net->network[index].type != NONE && net->type == PERCEPTRON){
-				sum.i = 0;
-				for(size_t k = 0; k < net->network[index].sizeSynOut; ++k){
-	  			sum.i += net->network[index].outputs[k]->output->dJ.i * net->network[index].outputs[k]->weight.i;
-	  			net->network[index].outputs[k]->weight.i += -eta.i * net->network[index].output.i * net->network[index].outputs[k]->output->dJ.i;
-				}
-				net->network[index].dJ.i = 
+      	if(net->network[index].type != NONE && net->type == PERCEPTRON){
+					sum.i = 0;
+					for(size_t k = 0; k < net->network[index].sizeSynOut; ++k){
+	  				sum.i += net->network[index].outputs[k]->output->dJ.i * net->network[index].outputs[k]->weight.i;
+	  				net->network[index].outputs[k]->weight.i += -eta.i * net->network[index].output.i * net->network[index].outputs[k]->output->dJ.i;
+					}
+					net->network[index].dJ.i = 
 net->network[index].output.i * (1 - net->network[index].output.i) * sum.i;
-				net->network[index].bias.i += -eta.i * net->network[index].dJ.i;
+					net->network[index].bias.i += -eta.i * net->network[index].dJ.i;
 
-      }else if(net->network[index].type != NONE && net->type == SIGMOID){
-				sum.fl = 0.;
-				for(size_t k = 0; k < net->network[index].sizeSynOut; ++k){
-	  			sum.fl += net->network[index].outputs[k]->output->dJ.fl * net->network[index].outputs[k]->weight.fl;
-	  			net->network[index].outputs[k]->weight.fl += -eta.fl * net->network[index].output.fl * net->network[index].outputs[k]->output->dJ.fl;
-				}
-				net->network[index].dJ.fl = net->network[index].output.fl * (1 - net->network[index].output.fl) * sum.fl;
-				net->network[index].bias.fl += -eta.fl * net->network[index].dJ.fl;
-      }
-		}
-
-  free(a);
+      	}else if(net->network[index].type != NONE && net->type == SIGMOID){
+					sum.fl = 0.;
+					for(size_t k = 0; k < net->network[index].sizeSynOut; ++k){
+	  				sum.fl += net->network[index].outputs[k]->output->dJ.fl * net->network[index].outputs[k]->weight.fl;
+	  				net->network[index].outputs[k]->weight.fl -= eta.fl * a[l * indexA + index].fl * net->network[index].outputs[k]->output->dJ.fl;
+					}
+					net->network[index].dJ.fl = a[l * indexA + index].fl * (1 - a[l * indexA + index].fl) * sum.fl;
+					net->network[index].bias.fl -= eta.fl * net->network[index].dJ.fl;
+      	}
+			}
+	}
 }
 
 void printNeuralOutput(NeuralNet *net)
