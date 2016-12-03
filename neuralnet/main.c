@@ -7,7 +7,7 @@
 
 int main(int argc, char **argv)
 {
-  size_t w[3] = { 3, 2, 2};
+  size_t w[3] = { 2, 2, 2};
   NeuralNet *net = NULL;
   flint inputs[8];
   flint outputs[4];
@@ -19,10 +19,10 @@ int main(int argc, char **argv)
   inputs[4].fl = 1., inputs[5].fl = 0.;
 	inputs[6].fl = 1., inputs[7].fl = 1.;
   outputs[0].fl = 0.;
-	outputs[1].fl = 0.;
-  outputs[2].fl = 1.;
-	outputs[3].fl = 0.;
-  eta.fl = 0.1;
+	outputs[1].fl = 1.;
+  outputs[2].fl = 0.;
+	outputs[3].fl = 1.;
+  eta.fl = 0.01;
   net = createNeural(2, 1, 2, w, type);
 
   size_t len;

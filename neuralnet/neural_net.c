@@ -112,22 +112,12 @@ NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
 
 void destroyNeural(NeuralNet *net)
 {
-	size_t lastone;
   for(size_t i = 0; i < net->size; ++i)
     switch(net->network[i].type){
       case PERCEPTRON:
 			case SIGMOID:
-				if(i / net->w == 1)
-					for(size_t j = 0; j < net->inputs; ++j)
-						free(net->network[i].inputs[j]);
-				else{
-						lastone = i / net->w * net->w - 1;
-						while(lastone < i && net->network[lastone].type == NONE)
-							--lastone;
-						lastone /= net->w;
-						for(size_t j = 0; j < lastone; ++j)
-							free(net->network[i].inputs[j]);
-				}
+				for(size_t j = 0; j < net->network[i].sizeSynIn; ++j)
+					free(net->network[i].inputs[j]);
 				free(net->network[i].inputs);
 				if(net->network[i].outputs)
 					free(net->network[i].outputs);
@@ -224,7 +214,7 @@ void trainingNeural(NeuralNet *net, flint *inputs, flint *outputs,
 			setInputNeural(net, inputs + i * net->inputs);
 			startNeural(net);
 			for(size_t k = net->w; k < net->size; ++k)
-				a[indexA + k] = net->network[k].output;
+				a[indexA + k - net->w] = net->network[k].output;
 		}
     improveNeural(net, a, outputs, nbTrain, eta);
 	}
@@ -265,10 +255,12 @@ net->network[index].output.i * (1 - net->network[index].output.i) * sum.i;
 					sum.fl = 0.;
 					for(size_t k = 0; k < net->network[index].sizeSynOut; ++k){
 	  				sum.fl += net->network[index].outputs[k]->output->dJ.fl * net->network[index].outputs[k]->weight.fl;
-	  				net->network[index].outputs[k]->weight.fl -= eta.fl * a[l * indexA + index].fl * net->network[index].outputs[k]->output->dJ.fl;
+	  				net->network[index].outputs[k]->weight.fl -= eta.fl * a[l * indexA - net->w + index].fl * net->network[index].outputs[k]->output->dJ.fl;
 					}
-					net->network[index].dJ.fl = a[l * indexA + index].fl * (1 - a[l * indexA + index].fl) * sum.fl;
-					net->network[index].bias.fl -= eta.fl * net->network[index].dJ.fl;
+					if(net->network[index].type == SIGMOID){
+						net->network[index].dJ.fl = a[l * indexA - net->w + index].fl * (1 - a[l * indexA - net->w + index].fl) * sum.fl;
+						net->network[index].bias.fl -= eta.fl * net->network[index].dJ.fl;
+					}
       	}
 			}
 	}
