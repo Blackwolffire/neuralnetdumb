@@ -193,8 +193,8 @@ GdkPixbuf *resize(GdkPixbuf *pb)
 {
   GdkPixbuf *resized = NULL;
   resized = gdk_pixbuf_scale_simple (pb,
-  				  200,
-				  200,
+  				  16,
+				  16,
 				  GDK_INTERP_HYPER);
   return(resized);
 }
