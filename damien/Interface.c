@@ -178,6 +178,29 @@ void resiz(GtkWidget *widget)
 }
 
 
+void threshold(GtkWidget *widget)
+{
+	char nom[30];
+	char nom2[30];
+	strcpy(nom, ".png.tmp");
+	strcpy(nom2, ".png.tmp");
+	char nb[5];
+	char nb2[5];
+	sprintf(nb, "%d", tout.imp-1);
+	sprintf(nb2, "%d", tout.imp);
+	strcat(nom, nb);
+	strcat(nom2, nb2);
+
+	GError **error = NULL;
+  GdkPixbuf *Im = gdk_pixbuf_new_from_file(nom, error);
+  Thresholding(Im);
+  gdk_pixbuf_save(Im, nom2, "png", error, NULL);
+  SetSurface(nom2);
+  SetChange();
+	tout.imp++;
+	(void) widget;
+}
+
 void togg (GtkWidget *widget, gpointer data)
 {
          if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data)))
@@ -234,6 +257,7 @@ void fenetre()
 	tout.p_da = darea;
   GtkWidget *frame;
 	GError *error;
+  GtkWidget *logo;
 
   // ************************** Home
   home = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -250,7 +274,7 @@ void fenetre()
   open = gtk_button_new_with_label ("Open file");
   save = gtk_button_new_with_label ("Save");
   quit = gtk_button_new_with_label ("Quit");
-
+  logo = gtk_image_new_from_file("LogoDeNous.png");
  
   GtkWidget *palette3 = gtk_tool_palette_new();
   GtkWidget *tool3 = gtk_tool_item_group_new ("Modif Img");
@@ -258,6 +282,7 @@ void fenetre()
   GtkToolItem *lowgrade = gtk_tool_button_new(NULL,"Reduire");
   GtkToolItem *upgrade = gtk_tool_button_new(NULL,"Agrandir");
   GtkToolItem *resize = gtk_tool_button_new(NULL,"Taille Definie");
+  GtkToolItem *thresholding = gtk_tool_button_new(NULL,"Thresholding");
 
   //***********************Palette
 
@@ -265,7 +290,7 @@ void fenetre()
   gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),lowgrade,2);
   gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),upgrade,3);
   gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),resize,4);
-
+  gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),thresholding,5);
 
   gtk_container_add (GTK_CONTAINER(palette3),tool3);
 
@@ -281,8 +306,9 @@ void fenetre()
   gtk_grid_attach(GTK_GRID(grid), open,1,0,1,1);
   gtk_grid_attach(GTK_GRID(grid), save,2,0,1,1);
   gtk_grid_attach(GTK_GRID(grid), quit,10,0,1,1);
-  gtk_grid_attach(GTK_GRID(grid), palette3,0,2,1,5);
+  gtk_grid_attach(GTK_GRID(grid), palette3,0,2,1,4);
   gtk_grid_attach(GTK_GRID(grid), frame,1,3,8,5);
+  gtk_grid_attach(GTK_GRID(grid), logo,0,5,1,1);
 
   //******************* Signaux de bouton
   g_signal_connect(G_OBJECT(home), "destroy",G_CALLBACK(gtk_main_quit), NULL);
@@ -294,6 +320,7 @@ void fenetre()
   g_signal_connect(G_OBJECT(lowgrade), "clicked", G_CALLBACK(lowgrad),darea);
   g_signal_connect(G_OBJECT(upgrade), "clicked", G_CALLBACK(upgrad),darea);
   g_signal_connect(G_OBJECT(resize), "clicked", G_CALLBACK(resiz),darea);
+  g_signal_connect(G_OBJECT(thresholding), "clicked", G_CALLBACK(threshold),darea);
 
 
   //*****************************************************************

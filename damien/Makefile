@@ -3,7 +3,7 @@
 CC=gcc
 
 CPPFLAGS= `pkg-config --cflags --libs gtk+-3.0`
-CFLAGS= -Wall -Wextra -Werror -std=c99 -pedantic -O3 -lm
+CFLAGS= -Wall -Wextra -Werror -std=c99 -pedantic -lm -O3
 LDFLAGS=
 LDLIBS= `pkg-config  --libs gtk+-3.0`
 
