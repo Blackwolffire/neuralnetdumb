@@ -4,6 +4,7 @@
 # include <unistd.h>
 #include <assert.h>
 # include <err.h>
+# include <stdio.h>
 //# include <gdk/gdk.h>
 # include "filtres.h"
 
@@ -325,11 +326,11 @@ void segmentation(GdkPixbuf *pb)
   free(matr);
 }
 
-List *Amin(GdkPixbuf *pb)
+void Amin(GdkPixbuf *pb,const char *filename)
 {
   struct matrice *matr = malloc(sizeof(struct matrice));
   List *liste = createList();
-
+  FILE *fichier = NULL;
   int width = gdk_pixbuf_get_width (pb);
   int height = gdk_pixbuf_get_height (pb);
 	matr->mat = malloc(sizeof(int) * width * height);
@@ -339,12 +340,37 @@ List *Amin(GdkPixbuf *pb)
   GdkToMat(matr, pb);
   Seg_char(matr,liste);
   MatToGdk(matr,pb);
-  free(matr->mat);
-  free(matr);
   res = forAmin(pb,liste);
-  return(res);
+  
+  fichier = fopen(filename,"w");
+  for (size_t i = 0; i < res->len; ++i)
+  { 
+		matr = getDataList(res,i);
+    for(size_t j = 0; j < 256; ++j)
+    {
+			fwrite(matr->mat + j,sizeof(char),1,fichier);
+		}
+	}
+	
 }
 
+
+
+
+void Nicolas(GdkPixbuf *pb)
+{
+	struct matrice *matr = malloc(sizeof(struct matrice));
+
+  int width = gdk_pixbuf_get_width (pb);
+  int height = gdk_pixbuf_get_height (pb);
+	matr->mat = malloc(sizeof(int) * width * height);
+
+  GdkToMat(matr, pb);
+  detecbloc(matr);
+  MatToGdk(matr,pb);
+  free(matr->mat);
+  free(matr);
+}
 
 
 

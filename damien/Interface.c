@@ -9,6 +9,10 @@
 # include "sauvegarde.h"
 # include "filtres.h"
 
+
+static char str[20] = "00";
+
+
 //****************************FONCTION POUR CALLBACK BUTTON********************
 void popup(GtkWidget *widget)
 {
@@ -274,6 +278,36 @@ void nicola(GtkWidget *widget)
 }
 
 
+void amine(GtkWidget *widget)
+{
+        char nom[30];
+        char nom2[30];
+        strcpy(nom, ".png.tmp");
+        strcpy(nom2, ".png.tmp");
+        char nb[5];
+        char nb2[5];
+        sprintf(nb, "%d", tout.imp-1);
+        sprintf(nb2, "%d", tout.imp);
+        strcat(nom, nb);
+        strcat(nom2, nb2);
+
+				if(++str[1] >  '9')
+					++str[0], str[1] = 0;
+
+        GError **error = NULL;
+  GdkPixbuf *Im = gdk_pixbuf_new_from_file(nom, error);
+  Amin(Im,str);
+  gdk_pixbuf_save(Im, nom2, "png", error, NULL);
+  SetSurface(nom2);
+  SetChange();
+        tout.imp++;
+        (void) widget;
+}
+
+
+
+
+
 void togg (GtkWidget *widget, gpointer data)
 {
          if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data)))
@@ -358,7 +392,8 @@ void fenetre()
   GtkToolItem *thresholding = gtk_tool_button_new(NULL,"Thresholding");
   GtkToolItem *segmentation = gtk_tool_button_new(NULL,"Segmentation");
   GtkToolItem *PrintCoord = gtk_tool_button_new(NULL,"Coord");
-  GtkToolItem *nicola = gtk_tool_button_new(NULL,"nicola");
+  GtkToolItem *Nicolas = gtk_tool_button_new(NULL,"nicola");
+  GtkToolItem *Amin = gtk_tool_button_new(NULL,"amine");
 
   //***********************Palette
 
@@ -370,6 +405,7 @@ void fenetre()
   gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),segmentation,6);
   gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),PrintCoord,7);
   gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),Nicolas,8);
+  gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),Amin,9);
 
   gtk_container_add (GTK_CONTAINER(palette3),tool3);
 
@@ -403,6 +439,7 @@ void fenetre()
   g_signal_connect(G_OBJECT(segmentation), "clicked", G_CALLBACK(segmentat),darea);
   g_signal_connect(G_OBJECT(PrintCoord), "clicked", G_CALLBACK(printcoor),darea);
   g_signal_connect(G_OBJECT(Nicolas), "clicked", G_CALLBACK(nicola),darea);
+  g_signal_connect(G_OBJECT(Amin), "clicked", G_CALLBACK(amine),darea);
 
   //*****************************************************************
   g_signal_connect (darea, "draw",

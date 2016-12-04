@@ -4,7 +4,7 @@
 //# include "filtres.c"
 # include "../neuralnet/list.h"
 # include "../segmentation/amin.h"
-
+# include "../fixme/nicolas.h"
 
 
 
@@ -25,7 +25,8 @@ struct matrice *transfo(unsigned int x1, unsigned int x2, unsigned int y1,
 List *forAmin(GdkPixbuf *pb, List *coor);
 void PrintCoord(GdkPixbuf *pb);
 void segmentation(GdkPixbuf *pb);
-List *Amin(GdkPixbuf *pb);
+void Amin(GdkPixbuf *pb, const char *filename);
+void Nicolas(GdkPixbuf *pb);
 GdkPixbuf *lowgrade(GdkPixbuf *pb);
 GdkPixbuf *upgrade(GdkPixbuf *pb);
 GdkPixbuf *resize(GdkPixbuf *pb);
