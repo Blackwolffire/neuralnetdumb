@@ -1,7 +1,7 @@
 CC=gcc
  
 CPPFLAGS=
-CFLAGS= -Wall -Wextra -Werror -std=c99 -O3
+CFLAGS= -Wall -Wextra -Werror -std=c99 -g #-O3
 LDFLAGS=
 LDLIBS= -lm
  

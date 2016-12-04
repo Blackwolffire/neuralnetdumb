@@ -5,11 +5,7 @@
 #ifndef NEURAL_NET_H
 #define NEURAL_NET_H
 
-#define DEBUG
-
 #include "list.h"
-
-
 
 #define MAX_RAND 1000
 
@@ -24,6 +20,7 @@ enum NeuronType{NONE = 0, INPUT = 1, PERCEPTRON = 2, SIGMOID = 3};
 
 union flint // flint => fl(oat)int 					Captain Flint is coming!
 {
+//	char *c;
   int i;
   double fl;
 };
@@ -39,7 +36,6 @@ struct Neuron
 	size_t sizeSynIn;
 	size_t sizeSynOut;
   flint bias;
-  flint z;
   flint output;
   flint dJ;
 };
@@ -80,18 +76,23 @@ struct TrainingData
 };
 */
 
-NeuralNet* createNeural(size_t input, size_t output, size_t hiddenLayers,
-			size_t *width, NeuronType type);
+NeuralNet* createNeural(size_t input,size_t output,size_t hiddenLayers,
+												size_t *width,NeuronType type);
 void destroyNeural(NeuralNet *net);
-void boundNeuron(NeuralNet *net, flint weight, size_t  xin, size_t  yin,
-		 size_t  x, size_t y);
+void boundNeuron(NeuralNet *net,flint weight,size_t xin,size_t yin,
+								 size_t x,size_t y);
 void setInputNeural(NeuralNet *net, flint *inputs);
 flint getOutputNeural(NeuralNet *net, size_t i);
 void proceedNeuron(Neuron *neuron);
 void startNeural(NeuralNet *net);
-void trainingNeural(NeuralNet *net, flint *inputs, flint *outputs, size_t nbTrain, flint eta, size_t len);
-void improveNeural(NeuralNet *net,flint *a, flint *outputs, size_t len, flint eta);
+void trainingNeural(NeuralNet *net,flint *inputs,flint *outputs,
+										size_t nbTrain,flint eta,size_t len);
+double improveNeural(NeuralNet *net,flint *a,flint *outputs,size_t len,
+										 flint eta);
 void printNeuralOutput(NeuralNet *net);
+void printNeural(NeuralNet *net);
+void saveNeural(NeuralNet *net, char *filename);
+NeuralNet *loadNeural(char *filename);
 
 #endif
 
