@@ -2,12 +2,12 @@
 
 CC=gcc
  
-CPPFLAGS= `pkg-config --cflags sdl`
+CPPFLAGS= `pkg-config --cflags gtk+-3.0`
 CFLAGS= -Wall -Wextra -Werror -std=c99 -O3
 LDFLAGS=
-LDLIBS= `pkg-config --libs sdl` -lSDL_image
+LDLIBS= `pkg-config --libs gtk+-3.0` 
  
-SRC=  amin.c pixel_operations.c ../neuralnet/list.c
+SRC=  amin.c filtres.c ../neuralnet/list.c
 OBJ= ${SRC:.c=.o}
  
 all: 

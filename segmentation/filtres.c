@@ -4,17 +4,13 @@
 # include <unistd.h>
 # include <err.h>
 # include <gdk/gdk.h>
-# include "../neuralnet/list.h"
-# include "../segmentation/amin.h"
 
 
 struct matrice{
-  int height;
   int width;
+  int height;
   int *mat;
 };
-
-
 
 
 void to_grey(GdkPixbuf *pb)
