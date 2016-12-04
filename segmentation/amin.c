@@ -1,12 +1,30 @@
 # include <err.h>
-# include "../neuralnet/list.h"
-#include "amin.h"
-#include "filtres.h"
 # include <stdio.h>
 #include <unistd.h>
 # include <stdlib.h>
 #include <fcntl.h>
 #include <gdk/gdk.h>
+#include "amin.h"
+
+/*
+struct matrice{
+  int height;
+  int width;
+  int *mat;
+};
+
+
+
+struct coord
+{
+  int xmin;
+  int xmax;
+  int ymin;
+  int ymax;
+};
+*/
+
+
 void SegLine(struct matrice* matrix, List* list){
  int w=matrix->width;
  int h=matrix->height;
@@ -20,7 +38,7 @@ void SegLine(struct matrice* matrix, List* list){
  {
   for(int j=0;j<w;j++)
   {
-   if(*(matrix->mat+(i*w+j))==1)
+   if(*(matrix->mat+(i*w+j))==0)
    {
     online=1;
     if(c->xmin<0)
@@ -41,8 +59,7 @@ void SegLine(struct matrice* matrix, List* list){
     if(c->ymax<i)
      c->ymax=i;
    }
-   }
-    
+   }    
  }
  if(c->xmin>=0&&online==0)
  {
@@ -61,6 +78,7 @@ void SegLine(struct matrice* matrix, List* list){
 }
 }
 void SegLine_to_char(struct matrice* matrix, List* list, List* newlist){
+ printList(list);
  int w=matrix->width;
  struct coord *c=malloc(sizeof(struct coord));
  struct coord *c2;
@@ -73,6 +91,7 @@ void SegLine_to_char(struct matrice* matrix, List* list, List* newlist){
  int onchar=0;
  for(size_t n=list->len;n>0;n--)
  {
+  printf("lol\n");
   c2=getDataList(list,n-1);
   c->ymin=c2->ymin;
 	c->ymax=c2->ymax;
@@ -80,7 +99,7 @@ void SegLine_to_char(struct matrice* matrix, List* list, List* newlist){
  {
   for(int j=c2->ymin;j<=c2->ymax;j++)
   {
-   if(*(matrix->mat+(j*w+i))==1)
+   if(*(matrix->mat+(j*w+i))==0)
    {
     onchar=1;
     if(c->xmin<0)
@@ -99,12 +118,13 @@ void SegLine_to_char(struct matrice* matrix, List* list, List* newlist){
 }
  if(c->xmin>=0&&onchar==0)
  {
+   printf("lol\n");
 	 while (c->ymax>c->ymin&&b==0)
 	 {
 		 l=c->xmin;
     while(l<=c->xmax&&b==0)
 		{
-			if(*(matrix->mat+(c->ymax*w+l))==1)
+			if(*(matrix->mat+(c->ymax*w+l))==0)
 				b=2;
 			l++;
 		}
@@ -119,7 +139,7 @@ void SegLine_to_char(struct matrice* matrix, List* list, List* newlist){
 		 l=c->xmin;
     while(l<=c->xmax&&b==0)
 		{
-			if(*(matrix->mat+(c->ymin*w+l))==1)
+			if(*(matrix->mat+(c->ymin*w+l))==0)
 				b=2;
 			l++;
 		}
@@ -130,26 +150,29 @@ void SegLine_to_char(struct matrice* matrix, List* list, List* newlist){
 	 }
 	 b=0;
 	insertList(newlist,c,0);
+  c=malloc(sizeof(struct coord));
+  printf("lol");
   c->xmin=-1;
   c->xmax=-1;
- }
+  c->ymin=c2->ymin;
+	c->ymax=c2->ymax;
+}
  onchar=0;
 }
 }
 }
-void Seg_char(struct matrice* matrix, List* list2)
+void Seg_char(struct matrice *matrix, List *list2)
 {
  List* list=createList();
  SegLine(matrix, list);
  SegLine_to_char(matrix, list,list2);
  destroyList(list, free);
- free(matrix);
 }
 
-
+/*
 int main()
 {
- /*  if (argc<2)
+   if (argc<2)
 	errx(1 , "No image.");
    init_sdl();
    SDL_Surface* img = load_image(argv[1]);
@@ -172,6 +195,6 @@ int main()
    }
    display_image(img);
    List* list = Seg_char(img);
-   display_image(img);*/
+   display_image(img);
    return 0;
-}
+}*/

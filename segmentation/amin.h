@@ -2,7 +2,8 @@
 #define AMIN_H
 # include "../neuralnet/list.h"
 #include <err.h>
-#include "filtres.h"
+//#include "../damien/filtres.h"
+//#include "amin.c"
 struct coord
 {
   int xmin;
@@ -11,7 +12,12 @@ struct coord
   int ymax;
 };
 
+struct matrice{
+  int height;
+  int width;
+  int *mat;
+};
 
-void Seg_char(struct matrice *matrix, List* list2);
+void Seg_char(struct matrice *matrix, List *list2);
 
 #endif
