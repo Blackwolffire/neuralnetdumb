@@ -5,18 +5,19 @@
 #include <stdlib.h>
 #include <gtk-3.0/gtk/gtk.h>
 #include <gdk/gdk.h>
+//#include <gdk-pixbuf/gdk-pixbuf.h>
 
 //#include "../segmentation/amin.h"
-#include "../neuralnet/neural_net.h"
-#include "filtres.h"
+#include "training.h"
 
 int main(int argc, char	**argv)
 {
 	size_t w = (256 + 76) / 2;
 	flint outputs[76 * 76];
+	List *list =NULL;
 	NeuralNet *net = NULL;
 
-	GdkPixbub *img = NULL;
+	GtkImage *img = NULL;//gtk_image_new();
 
 	for(size_t i = 0; i < 76*76; ++i)
 		outputs[i].fl = (i%76 == i/76);
@@ -26,9 +27,10 @@ int main(int argc, char	**argv)
 	else
 		net = createNeural(256, 76, 1, &w, SIGMOID);
 
-	for(size_t i = 3; i < argc; ++i){
-		img = gdk_new_from_file(argv[i]);
-		training(net,list,outputs,(flint)0.01,list->len,strtoul(argv[2]),
+	for(int i = 3; i < argc; ++i){
+		gtk_image_set_from_file(img, argv[i]);
+		list = Amin(gtk_image_get_pixbuf(img));
+		training(net,list,outputs,(flint)0.01,list->len,strtoul(argv[2], NULL, 10),
 						 "net.sav");
 	}
 
