@@ -7,7 +7,7 @@ CFLAGS= -Wall -Wextra -Werror -std=c99 -pedantic -lm -O3
 LDFLAGS=
 LDLIBS= `pkg-config  --libs gtk+-3.0`
 
-SRC= Interface.c
+SRC= Interface.c ../neuralnet/list.c
 OBJ= ${SRC:.c=.o}
 
 all: Interface

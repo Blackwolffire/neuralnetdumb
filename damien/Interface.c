@@ -201,6 +201,34 @@ void threshold(GtkWidget *widget)
 	(void) widget;
 }
 
+
+void segmentat(GtkWidget *widget)
+{
+        char nom[30];
+        char nom2[30];
+        strcpy(nom, ".png.tmp");
+        strcpy(nom2, ".png.tmp");
+        char nb[5];
+        char nb2[5];
+        sprintf(nb, "%d", tout.imp-1);
+        sprintf(nb2, "%d", tout.imp);
+        strcat(nom, nb);
+        strcat(nom2, nb2);
+
+        GError **error = NULL;
+  GdkPixbuf *Im = gdk_pixbuf_new_from_file(nom, error);
+  segmentation(Im);
+  gdk_pixbuf_save(Im, nom2, "png", error, NULL);
+  SetSurface(nom2);
+  SetChange();
+        tout.imp++;
+        (void) widget;
+}
+
+
+
+
+
 void togg (GtkWidget *widget, gpointer data)
 {
          if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data)))
@@ -283,6 +311,7 @@ void fenetre()
   GtkToolItem *upgrade = gtk_tool_button_new(NULL,"Agrandir");
   GtkToolItem *resize = gtk_tool_button_new(NULL,"Taille Definie");
   GtkToolItem *thresholding = gtk_tool_button_new(NULL,"Thresholding");
+  GtkToolItem *segmentation = gtk_tool_button_new(NULL,"Segmentation");
 
   //***********************Palette
 
@@ -291,6 +320,7 @@ void fenetre()
   gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),upgrade,3);
   gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),resize,4);
   gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),thresholding,5);
+  gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),segmentation,6);
 
   gtk_container_add (GTK_CONTAINER(palette3),tool3);
 
@@ -321,7 +351,7 @@ void fenetre()
   g_signal_connect(G_OBJECT(upgrade), "clicked", G_CALLBACK(upgrad),darea);
   g_signal_connect(G_OBJECT(resize), "clicked", G_CALLBACK(resiz),darea);
   g_signal_connect(G_OBJECT(thresholding), "clicked", G_CALLBACK(threshold),darea);
-
+  g_signal_connect(G_OBJECT(segmentation), "clicked", G_CALLBACK(segmentat),darea);
 
   //*****************************************************************
   g_signal_connect (darea, "draw",

@@ -7,7 +7,6 @@
 # include "../neuralnet/list.h"
 # include "../segmentation/amin.h"
 
-
 struct matrice{
   int height;
   int width;
@@ -166,6 +165,70 @@ void MatToGdk(struct matrice *matr,GdkPixbuf *pb)
 }
 
 
+
+struct matrice *transfo(unsigned int x1, unsigned int x2, unsigned int y1, unsigned int y2, GdkPixbuf *pb)
+{
+  int width,  rowstride, n_channels;
+  unsigned int i, j;
+  guchar *pixels, *p;
+  
+  struct matrice *matr = malloc(sizeof(struct matrice));
+
+  n_channels = gdk_pixbuf_get_n_channels (pb);
+  
+  g_assert (gdk_pixbuf_get_colorspace (pb) == GDK_COLORSPACE_RGB);
+  g_assert (gdk_pixbuf_get_bits_per_sample (pb) == 8);
+  
+  width = gdk_pixbuf_get_width (pb);
+  //height = gdk_pixbuf_get_height (pb);
+  
+  matr->height = x2 - x1;
+  matr->width = y2 - y1;
+
+  rowstride = gdk_pixbuf_get_rowstride (pb);
+  pixels = gdk_pixbuf_get_pixels (pb);
+  
+  for (i = y1; i < y2; i++)
+  { 
+    for (j = x1; j < x2; j++)
+    { 
+      p = pixels + i * rowstride + j * n_channels;
+      matr->mat[(i - y1) * width + (j - x1)] = p[0];
+    }
+  }
+  return(matr);
+}
+
+
+List *forAmin (GdkPixbuf *pb, List *coor)
+{
+  List *matrices = createList();
+  struct coord *coordonnees = malloc(sizeof(struct coord));
+  struct matrice *matr = malloc(sizeof(struct matrice));
+  unsigned int i = 0;
+  unsigned int x1, x2, y1, y2;
+  while (i < coor->len)
+  {
+    coordonnees = getDataList(coor ,i);
+    x1 = coordonnees->xmin;
+    x2 = coordonnees->xmax;
+    y1 = coordonnees->ymin;
+    y2 = coordonnees->ymax;
+    matr = transfo(x1, x2, y1, y2, pb);
+    insertList(matrices, matr, i);
+    i++;
+  }
+  free(matr);
+  free(coordonnees);
+  return(matrices);
+}
+
+
+GdkPixbuf *segmentation(GdkPixbuf *pb)
+{
+  struct matrice *matr = malloc(sizeof(struct matrice));
+  matr = GdkToMat(pb);
+  
 
 
 
