@@ -85,9 +85,11 @@ void SegLine(SDL_Surface *img, int* matrix, int w, int h, List* list){
  online=0;
 }
 }
-void SegLine_to_char(SDL_Surface *img,  int w,int* matrix, List* list){
+void SegLine_to_char(SDL_Surface *img,  int w,int* matrix, List* list, List* newlist){
  struct coord *c=malloc(sizeof(struct coord));
  struct coord *c2;
+ int b=0;
+ int l;
  c->xmin=-1;
  c->xmax=-1;
  c->ymin=-1;
@@ -98,6 +100,8 @@ void SegLine_to_char(SDL_Surface *img,  int w,int* matrix, List* list){
   c2=getDataList(list,n-1);
  for(int i=c2->xmin;i<=c2->xmax;i++)
  {
+	 c->ymin=c2->ymin;
+	 c->ymax=c2->ymax;
   for(int j=c2->ymin;j<=c2->ymax;j++)
   {
    if(*(matrix+(j*w+i))==1)
@@ -119,13 +123,45 @@ void SegLine_to_char(SDL_Surface *img,  int w,int* matrix, List* list){
 }
  if(c->xmin>=0&&onchar==0)
  {
-   for(int k=c2->ymin;k<=c2->ymax;++k)
+	 while (c->ymax>c->ymin&&b==0)
+	 {
+		 l=c->xmin;
+    while(l<=c->xmax&&b==0)
+		{
+			if(*(matrix+(c->ymax*w+l))==1)
+				b=2;
+			l++;
+		}
+		if(!b)
+		{
+			c->ymax--;
+		}
+	 }
+	 b=0;
+   while (c->ymin<c->ymax&&b==0)
+	 {
+		 l=c->xmin;
+    while(l<=c->xmax&&b==0)
+		{
+			if(*(matrix+(c->ymin*w+l))==1)
+				b=2;
+			l++;
+		}
+		if(!b)
+		{
+			c->ymin++;
+		}
+	 }
+	 b=0;
+
+   for(int k=c->ymin;k<=c->ymax;++k)
     {
      putpixel(img,c->xmin,k,500);
      putpixel(img,c->xmax,k,500);
     }
   //struct coord c2;
   //c++;
+	insertList(newlist,c,0);
   c->xmin=-1;
   c->xmax=-1;
   //*c->next=&(c);
@@ -189,7 +225,7 @@ SDL_Surface* display_image(SDL_Surface *img) {
   return screen;
 }
 
-SDL_Surface *Seg_char(SDL_Surface *img)
+List* Seg_char(SDL_Surface *img)
 {
  int w=img->w;
  int h=img->h;
@@ -213,10 +249,11 @@ SDL_Surface *Seg_char(SDL_Surface *img)
  List* list=createList();
  SegLine(img,matrix,w,h, list);
  display_image(img);
- SegLine_to_char(img, w,matrix, list);
+ List* list2=createList();
+ SegLine_to_char(img, w,matrix, list,list2);
  destroyList(list, free);
  free(matrix);
- return img;
+ return list2;
 }
 
 
@@ -244,7 +281,7 @@ int main(int argc, char *argv[])
  	}
    }
    display_image(img);
-   Seg_char(img);
+   List* list = Seg_char(img);
    display_image(img);
    return 0;
 }
