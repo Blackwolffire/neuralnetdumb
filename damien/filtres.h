@@ -1,5 +1,7 @@
 #ifndef FILTRES_H
 #define FILTRES_H
+# include "filtres.c"
+
 
 void to_grey(GdkPixbuf *pb);
 void Thresholding(GdkPixbuf *pb);
