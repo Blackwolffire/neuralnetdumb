@@ -7,7 +7,7 @@ CFLAGS= -Wall -Wextra -Werror -std=c99 -O3
 LDFLAGS=
 LDLIBS= `pkg-config --libs gtk+-3.0` 
  
-SRC=  amin.c filtres.c ../neuralnet/list.c
+SRC=  amin.c ../neuralnet/list.c
 OBJ= ${SRC:.c=.o}
  
 all: 

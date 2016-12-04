@@ -7,9 +7,9 @@
 # include <stdlib.h>
 #include <fcntl.h>
 #include <gdk/gdk.h>
-void SegLine(matrix* matrix, List* list){
- w=matrix->width;
- h=matrix->height;
+void SegLine(struct matrice* matrix, List* list){
+ int w=matrix->width;
+ int h=matrix->height;
  struct coord *c=malloc(sizeof(struct coord));
  c->xmin=-1;
  c->xmax=-1;
@@ -20,7 +20,7 @@ void SegLine(matrix* matrix, List* list){
  {
   for(int j=0;j<w;j++)
   {
-   if(*(matrix->matrix+(i*w+j))==1)
+   if(*(matrix->mat+(i*w+j))==1)
    {
     online=1;
     if(c->xmin<0)
@@ -60,7 +60,7 @@ void SegLine(matrix* matrix, List* list){
  online=0;
 }
 }
-void SegLine_to_char(matrix* matrix, List* list, List* newlist){
+void SegLine_to_char(struct matrice* matrix, List* list, List* newlist){
  int w=matrix->width;
  struct coord *c=malloc(sizeof(struct coord));
  struct coord *c2;
@@ -80,7 +80,7 @@ void SegLine_to_char(matrix* matrix, List* list, List* newlist){
  {
   for(int j=c2->ymin;j<=c2->ymax;j++)
   {
-   if(*(matrix->matrix+(j*w+i))==1)
+   if(*(matrix->mat+(j*w+i))==1)
    {
     onchar=1;
     if(c->xmin<0)
@@ -104,7 +104,7 @@ void SegLine_to_char(matrix* matrix, List* list, List* newlist){
 		 l=c->xmin;
     while(l<=c->xmax&&b==0)
 		{
-			if(*(matrix->matrix+(c->ymax*w+l))==1)
+			if(*(matrix->mat+(c->ymax*w+l))==1)
 				b=2;
 			l++;
 		}
@@ -119,7 +119,7 @@ void SegLine_to_char(matrix* matrix, List* list, List* newlist){
 		 l=c->xmin;
     while(l<=c->xmax&&b==0)
 		{
-			if(*(matrix->matrix+(c->ymin*w+l))==1)
+			if(*(matrix->mat+(c->ymin*w+l))==1)
 				b=2;
 			l++;
 		}
@@ -137,21 +137,19 @@ void SegLine_to_char(matrix* matrix, List* list, List* newlist){
 }
 }
 }
-List* Seg_char(matrix* matrix)
+void Seg_char(struct matrice* matrix, List* list2)
 {
  List* list=createList();
  SegLine(matrix, list);
- List* list2=createList();
  SegLine_to_char(matrix, list,list2);
  destroyList(list, free);
  free(matrix);
- return list2;
 }
 
-/*
-int main(int argc, char *argv[])
+
+int main()
 {
-   if (argc<2)
+ /*  if (argc<2)
 	errx(1 , "No image.");
    init_sdl();
    SDL_Surface* img = load_image(argv[1]);
@@ -174,6 +172,6 @@ int main(int argc, char *argv[])
    }
    display_image(img);
    List* list = Seg_char(img);
-   display_image(img);
+   display_image(img);*/
    return 0;
-}*/
+}

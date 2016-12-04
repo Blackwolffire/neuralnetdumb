@@ -1,9 +1,8 @@
 #ifndef AMIN_H
 #define AMIN_H
-# include <SDL/SDL.h>
-# include <SDL/SDL_image.h>
 # include "../neuralnet/list.h"
-
+#include <err.h>
+#include "filtres.h"
 struct coord
 {
   int xmin;
@@ -13,8 +12,6 @@ struct coord
 };
 
 
-void init_sdl(void);
-SDL_Surface *screen();
-List *Seg_char(SDL_Surface *img);
+void Seg_char(struct matrice *matrix, List* list2);
 
 #endif
