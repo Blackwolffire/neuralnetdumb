@@ -4,7 +4,7 @@
 # include <unistd.h>
 #include <assert.h>
 # include <err.h>
-# include <gdk/gdk.h>
+//# include <gdk/gdk.h>
 # include "filtres.h"
 
 /*
@@ -165,7 +165,8 @@ void MatToGdk(struct matrice *matr,GdkPixbuf *pb)
 
 
 
-struct matrice *transfo(unsigned int x1, unsigned int x2, unsigned int y1, unsigned int y2, GdkPixbuf *pb)
+struct matrice *transfo(unsigned int x1, unsigned int x2, unsigned int y1,
+												unsigned int y2, GdkPixbuf *pb)
 {
   int width,  rowstride, n_channels;
   unsigned int i, j;

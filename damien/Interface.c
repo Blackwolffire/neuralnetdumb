@@ -250,7 +250,28 @@ void segmentat(GtkWidget *widget)
 }
 
 
+void nicola(GtkWidget *widget)
+{
+        char nom[30];
+        char nom2[30];
+        strcpy(nom, ".png.tmp");
+        strcpy(nom2, ".png.tmp");
+        char nb[5];
+        char nb2[5];
+        sprintf(nb, "%d", tout.imp-1);
+        sprintf(nb2, "%d", tout.imp);
+        strcat(nom, nb);
+        strcat(nom2, nb2);
 
+        GError **error = NULL;
+  GdkPixbuf *Im = gdk_pixbuf_new_from_file(nom, error);
+  Nicolas(Im);
+  gdk_pixbuf_save(Im, nom2, "png", error, NULL);
+  SetSurface(nom2);
+  SetChange();
+        tout.imp++;
+        (void) widget;
+}
 
 
 void togg (GtkWidget *widget, gpointer data)
@@ -337,6 +358,7 @@ void fenetre()
   GtkToolItem *thresholding = gtk_tool_button_new(NULL,"Thresholding");
   GtkToolItem *segmentation = gtk_tool_button_new(NULL,"Segmentation");
   GtkToolItem *PrintCoord = gtk_tool_button_new(NULL,"Coord");
+  GtkToolItem *nicola = gtk_tool_button_new(NULL,"nicola");
 
   //***********************Palette
 
@@ -347,6 +369,7 @@ void fenetre()
   gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),thresholding,5);
   gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),segmentation,6);
   gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),PrintCoord,7);
+  gtk_tool_item_group_insert (GTK_TOOL_ITEM_GROUP(tool3),Nicolas,8);
 
   gtk_container_add (GTK_CONTAINER(palette3),tool3);
 
@@ -379,6 +402,7 @@ void fenetre()
   g_signal_connect(G_OBJECT(thresholding), "clicked", G_CALLBACK(threshold),darea);
   g_signal_connect(G_OBJECT(segmentation), "clicked", G_CALLBACK(segmentat),darea);
   g_signal_connect(G_OBJECT(PrintCoord), "clicked", G_CALLBACK(printcoor),darea);
+  g_signal_connect(G_OBJECT(Nicolas), "clicked", G_CALLBACK(nicola),darea);
 
   //*****************************************************************
   g_signal_connect (darea, "draw",
