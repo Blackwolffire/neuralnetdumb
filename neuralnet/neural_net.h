@@ -86,7 +86,7 @@ flint getOutputNeural(NeuralNet *net, size_t i);
 void proceedNeuron(Neuron *neuron);
 void startNeural(NeuralNet *net);
 void trainingNeural(NeuralNet *net,flint *inputs,flint *outputs,
-										size_t nbTrain,flint eta,size_t len);
+										size_t nbTrain,flint eta,size_t len,char *filename);
 double improveNeural(NeuralNet *net,flint *a,flint *outputs,size_t len,
 										 flint eta);
 void printNeuralOutput(NeuralNet *net);

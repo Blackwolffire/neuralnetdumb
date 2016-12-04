@@ -200,13 +200,13 @@ void startNeural(NeuralNet *net)
 }
 
 void trainingNeural(NeuralNet *net,flint *inputs,flint *outputs,
-										size_t nbTrain,flint eta,size_t len)
+										size_t nbTrain,flint eta,size_t len,char *filename)
 {
 	unsigned short int percent = 200;
 	double cost = 1., bestScore = 0.4;
 	flint *a = NULL;
 
-	assert(net && inputs && outputs);
+	assert(net && inputs && outputs && filename);
 
 	a = malloc(sizeof(flint) * nbTrain * (net->size - net->w));
 	for(size_t j =0; j < len; ++j){
@@ -225,7 +225,7 @@ void trainingNeural(NeuralNet *net,flint *inputs,flint *outputs,
 		if(cost <= bestScore - 0.0001){
 			bestScore = cost;
 			printf("SAVE - cost: %f\n", cost);
-			saveNeural(net, "net.sav");
+			saveNeural(net, filename);
 		}
 	}
 	printf(" 100%%\tcost: %f\n", cost);

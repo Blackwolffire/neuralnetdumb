@@ -7,14 +7,14 @@ CFLAGS= -Wall -Wextra -Werror -std=c99 -O3
 LDFLAGS=
 LDLIBS= `pkg-config --libs sdl` -lSDL_image
  
-SRC=  pixel_operations.c ../neuralnet/list.c
+SRC=  amin.c pixel_operations.c ../neuralnet/list.c
 OBJ= ${SRC:.c=.o}
  
 all: 
  
-main: ${OBJ}
+amin: ${OBJ}
  
 clean:
 					rm -f *~ *.o
-					rm -f main
+					rm -f amin
 # END

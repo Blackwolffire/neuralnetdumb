@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 	startNeural(net);
 	printNeuralOutput(net);
 
-  trainingNeural(net, inputs, outputs, 4, eta, len);
+  trainingNeural(net, inputs, outputs, 4, eta, len, "net.sav");
   
 	printf("\nAfter training: \ninputs: 0. 0.\n");
 	setInputNeural(net, inputs);

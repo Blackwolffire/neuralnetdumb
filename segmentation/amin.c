@@ -4,6 +4,7 @@
 # include "quartet.h"
 # include "../neuralnet/list.h"
 # include "pixel_operations.h"
+#include "amin.h"
 
 void wait_for_keypressed(void) {
   SDL_Event             event;
@@ -256,7 +257,7 @@ List* Seg_char(SDL_Surface *img)
  return list2;
 }
 
-
+/*
 int main(int argc, char *argv[])
 {
    if (argc<2)
@@ -284,4 +285,4 @@ int main(int argc, char *argv[])
    List* list = Seg_char(img);
    display_image(img);
    return 0;
-}
+}*/
