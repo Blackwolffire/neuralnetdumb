@@ -2,8 +2,8 @@
  *	sdouga_a
  */
 
-void training(NeuralNet *net,List *letters,flint *outputs, flint eta,
-							size_t nbTrain,	size_t len, char *filename)
+void training(NeuralNet *net,List *letters,flint *outputs,flint eta,
+							size_t nbTrain,size_t len,char *filename)
 {
 	flint *inputs;
 	struct matrice *mat;

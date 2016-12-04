@@ -1,11 +1,11 @@
 CC=gcc
  
 CPPFLAGS=
-CFLAGS= -Wall -Wextra -Werror -std=c99 -g #-O3
+CFLAGS= -Wall -Wextra -Werror -std=c99 -lm -g #-O3
 LDFLAGS=
-LDLIBS= -lm `pck-config --libs sdl` -lSDL_image
+LDLIBS=  `pkg-config --libs gtk+-3.0`
  
-SRC=  main.c
+SRC=  main.c training.c ../neuralnet/list.c ../neuralnet/neural_net.c ../damien/filtres.c ../damien/sauvegarde.c ../segmentation/amin.c
 OBJ= ${SRC:.c=.o}
  
 all: main
