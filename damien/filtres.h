@@ -30,6 +30,7 @@ void Nicolas(GdkPixbuf *pb);
 GdkPixbuf *lowgrade(GdkPixbuf *pb);
 GdkPixbuf *upgrade(GdkPixbuf *pb);
 GdkPixbuf *resize(GdkPixbuf *pb);
+GdkPixbuf *same(GdkPixbuf *pb);
 
 #endif
 

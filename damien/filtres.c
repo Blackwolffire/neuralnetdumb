@@ -69,7 +69,7 @@ void Thresholding(GdkPixbuf *pb)
     for (j = 0; j < width; j++)
     {
       p = pixels + i * rowstride + j * n_channels;
-      if ((p[0] + p[1] + p[2]) > 390)
+      if ((p[0] + p[1] + p[2]) > 500)
       {
         p[0]= 255;
         p[1] = 255;
@@ -94,7 +94,6 @@ void GdkToMat(struct matrice *matr, GdkPixbuf *pb)
   int width, height, rowstride, n_channels;
   int i, j;
   guchar *pixels, *p;
-
   n_channels = gdk_pixbuf_get_n_channels (pb);
 
   g_assert (gdk_pixbuf_get_colorspace (pb) == GDK_COLORSPACE_RGB);
@@ -109,18 +108,18 @@ void GdkToMat(struct matrice *matr, GdkPixbuf *pb)
   matr->width = width;
   matr->height = height;
 
-printf("%d %d\n", width, height);
-
   for (i = 0; i < height; i++)
   {
     for (j = 0; j < width; j++)
     {
       p = pixels + i * rowstride + j * n_channels;
-      if (p[0] == 255)
+      if (p[1] == 255)
         matr->mat[i * width + j] = 1;
       else
         matr->mat[i * width + j] = 0;
+			//printf("%d,",matr->mat[i * width + j]);
     }
+		//printf("\n");
   }
 }
 
@@ -137,8 +136,8 @@ void MatToGdk(struct matrice *matr,GdkPixbuf *pb)
   g_assert (gdk_pixbuf_get_colorspace (pb) == GDK_COLORSPACE_RGB);
   g_assert (gdk_pixbuf_get_bits_per_sample (pb) == 8);
 
-  width = gdk_pixbuf_get_width (pb);
-  height = gdk_pixbuf_get_height (pb);
+  width = matr->width;
+  height = matr->height;
 
   rowstride = gdk_pixbuf_get_rowstride (pb);
   pixels = gdk_pixbuf_get_pixels (pb);
@@ -159,8 +158,10 @@ void MatToGdk(struct matrice *matr,GdkPixbuf *pb)
         p[0] = 0;
         p[1] = 0;
         p[2] = 0;
-      }  
+      }
+			//printf("%d,",matr->mat[i* width + j]);
     }
+	//printf("\n");
   }
 }
 
@@ -186,19 +187,25 @@ struct matrice *transfo(unsigned int x1, unsigned int x2, unsigned int y1,
   
   //height = gdk_pixbuf_get_height (pb);
   
-  matr->height = x2 - x1;
-  matr->width = y2 - y1;
+  matr->height = y2 - y1 + 1;
+  matr->width = x2 - x1 + 1;
+  
+  printf("%d %d \n",matr->width, matr->height);
 
   rowstride = gdk_pixbuf_get_rowstride (pb);
   pixels = gdk_pixbuf_get_pixels (pb);
   
-  for (i = y1; i < y2; i++)
+  for (i = y1; i <= y2; i++)
   { 
-    for (j = x1; j < x2; j++)
+    for (j = x1; j <= x2; j++)
     { 
       p = pixels + i * rowstride + j * n_channels;
-      matr->mat[(i - y1) * width + (j - x1)] = p[0];
+      matr->mat[(i - y1) * (matr->width) + (j - x1)] = p[0];
+			if (matr->mat[(i - y1) * (matr->width) + (j - x1)] == 255)
+				matr->mat[(i - y1) * (matr->width) + (j - x1)] = 1;
+			//printf("%d,",matr->mat[(i-y1)*(matr->width)+(j-x1)]);
     }
+	//printf("\n");
   }
   return(matr);
 }
@@ -207,9 +214,11 @@ struct matrice *transfo(unsigned int x1, unsigned int x2, unsigned int y1,
 List *forAmin (GdkPixbuf *pb, List *coor)
 {
   List *matrices = createList();
+  GdkPixbuf *rz = NULL;
+  GdkPixbuf *le2 = NULL;
   struct coord *coordonnees = malloc(sizeof(struct coord));
   struct matrice *matr = malloc(sizeof(struct matrice));
-
+  le2 = resize(pb);
   int width = gdk_pixbuf_get_width (pb);
   int height = gdk_pixbuf_get_height (pb);
 	matr->mat = malloc(sizeof(int) * width * height);
@@ -224,14 +233,25 @@ List *forAmin (GdkPixbuf *pb, List *coor)
     y1 = coordonnees->ymin;
     y2 = coordonnees->ymax;
     matr = transfo(x1, x2, y1, y2, pb);
-    insertList(matrices, matr, i);
-    i++;
-  }
-  free(matr->mat);
-  free(matr);
-  free(coordonnees);
-  return(matrices);
+
+    //printf("%d %d \n",matr->width,matr->height);
+    MatToGdk(matr,le2);  
+		printf("MTG OK : %d \n",i);
+		rz = resize(le2);
+		printf("RSZ OK : %d \n",i);
+		//pb = same(rz);
+		//printf("SM OK : %d \n",i);
+		GdkToMat(matr,rz);
+		printf("GTM OK : %d \n",i);
+		insertList(matrices, matr, i);
+		i++;
+	}
+  //free(matr->mat);
+  //free(matr);
+  //free(coordonnees);
+	return(matrices);
 }
+
 
 
 void PrintCoordFunc(GdkPixbuf *pb, List *coor)
@@ -252,13 +272,13 @@ void PrintCoordFunc(GdkPixbuf *pb, List *coor)
   width = gdk_pixbuf_get_width (pb);
   int height = gdk_pixbuf_get_height (pb);
 	matr->mat = malloc(sizeof(int) * width * height);
-  printf("popopopo\n");
+  //printf("popopopo\n");
   unsigned int i = 0;
   unsigned int x,y;
   unsigned int x1, x2, y1, y2;
   while (i < coor->len)
   {
-    printf("poop\n");
+    //printf("poop\n");
     coordonnees = getDataList(coor ,i);
     x1 = coordonnees->xmin;
     x2 = coordonnees->xmax;
@@ -291,19 +311,19 @@ void PrintCoord(GdkPixbuf *pb)
 {
   struct matrice *matr = malloc(sizeof(struct matrice));
   List *liste = createList();
-  printf("ca\n");
+  //printf("ca\n");
   int width = gdk_pixbuf_get_width (pb);
   int height = gdk_pixbuf_get_height (pb);
 	matr->mat = malloc(sizeof(int) * width * height);
-  printf("cb\n");
+  //printf("cb\n");
   GdkToMat(matr, pb);
-  printf("cc\n");
+  //printf("cc\n");
   Seg_char(matr,liste);
   printList(liste);
-  printf("cd\n");
+  //printf("cd\n");
 
   PrintCoordFunc(pb,liste);
-  printf("ce\n");
+  //printf("ce\n");
   free(matr->mat);
   free(matr);
 }
@@ -346,12 +366,17 @@ void Amin(GdkPixbuf *pb,const char *filename)
   for (size_t i = 0; i < res->len; ++i)
   { 
 		matr = getDataList(res,i);
+		printf("%d %d\n", matr->width, matr->height);
     for(size_t j = 0; j < 256; ++j)
     {
-			fwrite(matr->mat + j,sizeof(char),1,fichier);
+			if(j % 16 == 0)
+				printf("\n");
+			fwrite(matr->mat + j,sizeof(int),1,fichier);
+			printf("%d,", matr->mat[j]);
 		}
+		printf("\n");
 	}
-	
+	fclose(fichier);
 }
 
 
@@ -396,13 +421,24 @@ GdkPixbuf *upgrade(GdkPixbuf *pb)
   return(maxi);
 }
 
+
 GdkPixbuf *resize(GdkPixbuf *pb)
 {
-  GdkPixbuf *resized = NULL;
+	GdkPixbuf *resized = NULL;
   resized = gdk_pixbuf_scale_simple (pb,
   				  16,
 				  16,
-				  GDK_INTERP_HYPER);
-  return(resized);
+				  GDK_INTERP_BILINEAR);
+	return(resized);
 }
 
+GdkPixbuf *same(GdkPixbuf *pb)
+{
+	GdkPixbuf	*meme = NULL;
+	meme = gdk_pixbuf_scale_simple (pb,
+				 gdk_pixbuf_get_width(pb),
+				 gdk_pixbuf_get_height(pb),
+				 GDK_INTERP_BILINEAR);
+	return(meme);
+}
+				 

@@ -91,7 +91,7 @@ void SegLine_to_char(struct matrice* matrix, List* list, List* newlist){
  int onchar=0;
  for(size_t n=list->len;n>0;n--)
  {
-  printf("lol\n");
+  //printf("lol\n");
   c2=getDataList(list,n-1);
   c->ymin=c2->ymin;
 	c->ymax=c2->ymax;
@@ -118,7 +118,7 @@ void SegLine_to_char(struct matrice* matrix, List* list, List* newlist){
 }
  if(c->xmin>=0&&onchar==0)
  {
-   printf("lol\n");
+   //printf("lol\n");
 	 while (c->ymax>c->ymin&&b==0)
 	 {
 		 l=c->xmin;
@@ -151,7 +151,7 @@ void SegLine_to_char(struct matrice* matrix, List* list, List* newlist){
 	 b=0;
 	insertList(newlist,c,0);
   c=malloc(sizeof(struct coord));
-  printf("lol");
+  //printf("lol");
   c->xmin=-1;
   c->xmax=-1;
   c->ymin=c2->ymin;
