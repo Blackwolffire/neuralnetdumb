@@ -15,17 +15,17 @@ void detecbloc(struct matrice* matr){
 						oneb = 0;				
 				}
 			}
-			if(newp==0 && j - y2 > 2*(tline) && endline){
+			if(newp==0 && j - y2 > 2*(tline)){
 				printf("%d",1);
 				newp = 1;
 				//draw and save bloc from x1-2y1-2 to x2+2y2+2
-				for(int x = x1;x<x2;x++){
-					matr->mat[(y1+1)*matr->width+x]=0;
-					matr->mat[(y2-1)*matr->width+x]=0;
+				for(int x = x1+8;x<x2-8;x++){
+					matr->mat[(y1)*matr->width+x+8]=0;
+					matr->mat[(y2)*matr->width+x]=0;
 				}
-				for(int y = y1;y<y2;y++){
-					matr->mat[y*matr->width+x1+1]=0;
-					matr->mat[y*matr->width+x2-1]=0;
+				for(int y = y1+8;y<y2-8;y++){
+					matr->mat[y*matr->width+x1+8]=0;
+					matr->mat[y*matr->width+x2-8]=0;
 				}
 			}
 			if(newp){
@@ -75,13 +75,13 @@ void detecbloc(struct matrice* matr){
 					newp = 1;
 					//draw and save bloc 
 					//from x1-1y1-1 to x2+1 j+1
-					for(int x = x1;x<x2;x++){
-						matr->mat[(y1+1)*matr->width+x]=0;
-						matr->mat[(j-1)*matr->width+x]=0;
+					for(int x = x1+8;x<x2-8;x++){
+						matr->mat[(y1)*matr->width+x+8]=0;
+						matr->mat[(j)*matr->width+x]=0;
 					}
-					for(int y = y1;y<y2;y++){
-						matr->mat[y*matr->width+x1+1]=0;
-						matr->mat[y*matr->width+x2-1]=0;
+					for(int y = y1+8;y<y2+8;y++){
+						matr->mat[y*matr->width+x1+8]=0;
+						matr->mat[y*matr->width+x2-8]=0;
 					}
 
 				}
@@ -90,7 +90,7 @@ void detecbloc(struct matrice* matr){
 				x1 =x3;
 				x2 =x4;
 			}
-			j++;
+			
 		}   
 	}
 }
